@@ -19,6 +19,17 @@
 
 ## Setup Instructions
 
+### Quick Start (Run Both Servers Together)
+1. `cd ps-white-ecommerce`
+2. `npm install`
+3. `npm run dev`
+
+This starts:
+- Backend on `http://localhost:5000`
+- Frontend on `http://localhost:5173`
+- Health check: `http://localhost:5000/health`
+- API test: `http://localhost:5000/api/test`
+
 ### Prerequisites
 - Node.js 18+
 - MongoDB Atlas account
@@ -41,16 +52,35 @@
 4. `npm run dev` (starts on port 5173)
 
 ### Database Seed (Day 2)
-Will add dummy books, admin user, sample data.
+Populate test data:
+
+1. `cd backend`
+2. `npm run seed`
+
+This seeds:
+- Admin user + whitelist
+- 8 books
+- Review data
+- Blog posts
+- Customer test users
 
 ## Project Structure
 - `/backend` - Node.js API server
 - `/frontend` - React SPA application
 
 ## Timeline
-- Day 1: Setup & Foundation ?
+- Day 1: Setup & Foundation
 - Day 2-3: Build Core Features (in progress)
-- Day 4-5: Testing, Deployment, Polish
+- Day 4-5: Testing, Deployment, Polish (in progress)
+
+## Day 4-5 Docs
+- `TESTING_CHECKLIST.md`
+- `BUG_TRACKER.md`
+- `USER_GUIDE.md`
+- `ADMIN_GUIDE.md`
+- `API_DOCUMENTATION.md`
+- `DEPLOYMENT_GUIDE.md`
+- `MAINTENANCE_GUIDE.md`
 
 ## Developer
 Built with Cursor AI for PS White

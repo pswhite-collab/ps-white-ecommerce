@@ -56,7 +56,7 @@ const userSchema = new mongoose.Schema(
     lastName: { type: String, trim: true, maxlength: 50 },
     role: {
       type: String,
-      enum: ['customer', 'admin'],
+      enum: ['customer', 'admin', 'super_admin'],
       default: 'customer',
       index: true,
     },
@@ -72,6 +72,22 @@ const userSchema = new mongoose.Schema(
     emailVerified: {
       type: Boolean,
       default: false,
+    },
+    emailVerificationToken: {
+      type: String,
+      select: false,
+    },
+    emailVerificationExpires: {
+      type: Date,
+      select: false,
+    },
+    passwordResetToken: {
+      type: String,
+      select: false,
+    },
+    passwordResetExpires: {
+      type: Date,
+      select: false,
     },
   },
   {
@@ -90,6 +106,9 @@ userSchema.pre('save', async function hashPassword(next) {
 });
 
 userSchema.methods.comparePassword = function comparePassword(password) {
+  if (!this.password) {
+    return false;
+  }
   return bcrypt.compare(password, this.password);
 };
 

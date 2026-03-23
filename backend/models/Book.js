@@ -43,12 +43,36 @@ const bookSchema = new mongoose.Schema(
         available: { type: Boolean, default: false },
         price: { type: Number, default: 0, min: 0 },
         stock: { type: Number, default: 0, min: 0 },
-        weight: { type: Number, default: 0, min: 0 },
+        weight: {
+          type: Number,
+          min: 0,
+          required() {
+            return this.available;
+          },
+          default: 0,
+        },
         dimensions: {
           length: { type: Number, default: 0, min: 0 },
           width: { type: Number, default: 0, min: 0 },
           height: { type: Number, default: 0, min: 0 },
         },
+        isbn: {
+          type: String,
+          trim: true,
+          match: [
+            /^(?:ISBN(?:-1[03])?:? )?(?=[0-9X]{10}$|(?=(?:[0-9]+[- ]){3})[- 0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[- ]){4})[- 0-9]{17}$)(?:97[89][- ]?)?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]$/,
+            'Invalid ISBN format',
+          ],
+        },
+        publisher: { type: String, trim: true },
+        publicationDate: { type: Date },
+        binding: {
+          type: String,
+          enum: ['Hardcover', 'Paperback', 'Mass Market Paperback'],
+          default: 'Paperback',
+        },
+        pages: { type: Number, min: 0, default: 0 },
+        language: { type: String, trim: true, default: 'English' },
       },
       audiobook: {
         available: { type: Boolean, default: false },
@@ -58,6 +82,7 @@ const bookSchema = new mongoose.Schema(
     },
     reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }],
     averageRating: { type: Number, default: 0, min: 0, max: 5 },
+    reviewCount: { type: Number, default: 0, min: 0 },
     totalSales: { type: Number, default: 0, min: 0 },
     readingStats: {
       totalReaders: { type: Number, default: 0 },
@@ -74,6 +99,8 @@ const bookSchema = new mongoose.Schema(
 );
 
 bookSchema.index({ title: 'text', author: 'text', description: 'text' });
+bookSchema.index({ genres: 1 });
+bookSchema.index({ active: 1, featured: 1, createdAt: -1 });
 
 const Book = mongoose.model('Book', bookSchema);
 

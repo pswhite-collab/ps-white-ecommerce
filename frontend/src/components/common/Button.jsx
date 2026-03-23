@@ -2,8 +2,8 @@ const baseStyles =
   'inline-flex items-center justify-center rounded-pill font-medium tracking-wide transition-all duration-smooth ease-smooth focus:outline-none focus:ring-2 focus:ring-mocha/40 disabled:cursor-not-allowed disabled:opacity-60';
 
 const variants = {
-  primary: 'bg-mocha text-milk hover:bg-charcoal',
-  secondary: 'bg-taupe text-milk hover:bg-mocha',
+  primary: 'bg-mocha text-milk hover:bg-mocha-hover',
+  secondary: 'bg-taupe text-milk hover:bg-taupe-hover',
   outline: 'border-2 border-mocha text-mocha hover:bg-mocha hover:text-milk',
 };
 

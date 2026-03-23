@@ -17,26 +17,31 @@ export const AuthProvider = ({ children }) => {
 
   const refreshUser = useCallback(async () => {
     try {
-      setLoading(true);
+      const token = authService.getToken();
+      if (!token) {
+        setUser(null);
+        return null;
+      }
+
       const nextUser = await authService.getCurrentUser();
       setUser(nextUser);
       setError(null);
+      return nextUser;
     } catch (err) {
       setUser(null);
       setError(err.message);
-    } finally {
-      setLoading(false);
+      return null;
     }
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem('pswhite_token');
-    if (!token) {
+    const initialize = async () => {
+      setLoading(true);
+      await refreshUser();
       setLoading(false);
-      return;
-    }
+    };
 
-    refreshUser();
+    initialize();
   }, [refreshUser]);
 
   const register = async (userData) => {
@@ -82,15 +87,23 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const setSessionFromToken = async (token) => {
+    authService.setToken(token);
+    return refreshUser();
+  };
+
   const value = useMemo(
     () => ({
       user,
       loading,
       error,
+      isAuthenticated: Boolean(user),
+      isAdmin: ['admin', 'super_admin'].includes(user?.role),
       login,
       logout,
       register,
       refreshUser,
+      setSessionFromToken,
     }),
     [error, loading, user, refreshUser]
   );

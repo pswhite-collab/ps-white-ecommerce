@@ -1,90 +1,210 @@
-import { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import Button from '../common/Button';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 
 const navItems = [
-  { label: 'BOOKS', to: '/books' },
-  { label: 'ABOUT', to: '/#about' },
-  { label: 'BLOG', to: '/#blog' },
+  { label: 'Books', to: '/books' },
+  { label: 'Blog', to: '/blog' },
+  { label: 'About', to: '/#about', isHashLink: true },
 ];
 
 export default function Header() {
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const { itemCount } = useCart();
+  const { user, isAuthenticated, logout } = useAuth();
+
+  useEffect(() => {
+    setIsMenuOpen(false);
+    setShowUserMenu(false);
+  }, [location.pathname, location.search]);
+
+  const closeUserMenuAndNavigate = () => {
+    setShowUserMenu(false);
+  };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-taupe/35 bg-[rgba(251,247,244,0.9)] backdrop-blur-md">
-      <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link to="/" className="font-display text-3xl font-semibold tracking-wide text-mocha">
-          PS White
+    <header className="sticky top-0 z-40 border-b border-taupe/30 bg-[rgba(251,247,244,0.9)] backdrop-blur-xl">
+      <div className="mx-auto flex h-[72px] w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <Link to="/" className="font-display text-3xl font-semibold tracking-wide text-charcoal no-underline">
+          PS <span className="text-mocha">White</span>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.label}
-              to={item.to}
-              className={({ isActive }) =>
-                [
-                  'text-sm font-medium tracking-[0.18em] transition-colors duration-smooth ease-smooth',
-                  isActive ? 'text-mocha' : 'text-charcoal/75 hover:text-mocha',
-                ].join(' ')
-              }
-            >
-              {item.label}
-            </NavLink>
-          ))}
+          {navItems.map((item) =>
+            item.isHashLink ? (
+              <Link
+                key={item.label}
+                to={item.to}
+                className="text-xs font-medium uppercase tracking-[0.16em] text-mocha no-underline transition-colors duration-smooth ease-smooth hover:text-charcoal"
+              >
+                {item.label}
+              </Link>
+            ) : (
+              <NavLink
+                key={item.label}
+                to={item.to}
+                className={({ isActive }) =>
+                  [
+                    'text-xs font-medium uppercase tracking-[0.16em] no-underline transition-colors duration-smooth ease-smooth',
+                    isActive ? 'text-charcoal' : 'text-mocha hover:text-charcoal',
+                  ].join(' ')
+                }
+              >
+                {item.label}
+              </NavLink>
+            )
+          )}
         </nav>
 
-        <div className="hidden items-center gap-4 md:flex">
+        <div className="hidden items-center gap-3 md:flex">
           <Link
             to="/cart"
-            className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-taupe/60 text-charcoal transition-colors hover:bg-oat"
-            aria-label="Shopping cart"
+            className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-taupe/60 text-[10px] font-semibold uppercase tracking-[0.14em] text-charcoal no-underline transition-colors duration-smooth ease-smooth hover:bg-oat"
+            aria-label="Open cart"
           >
-            <span className="text-lg">??</span>
-            <span className="absolute -right-1 -top-1 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-mocha px-1 text-xs text-milk">
+            Cart
+            <span className="absolute -right-1 -top-1 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-mocha px-1 text-[10px] font-semibold text-milk">
               {itemCount}
             </span>
           </Link>
-          <Link to="/library">
-            <Button size="sm">My Library</Button>
-          </Link>
+
+          {!isAuthenticated ? (
+            <>
+              <Link to="/login" className="no-underline">
+                <Button size="sm" variant="outline">Login</Button>
+              </Link>
+              <Link to="/register" className="no-underline">
+                <Button size="sm">Sign Up</Button>
+              </Link>
+            </>
+          ) : (
+            <div className="relative">
+              <button
+                type="button"
+                className="inline-flex items-center gap-2 rounded-pill border border-taupe/60 px-4 py-2 text-xs font-medium uppercase tracking-[0.1em] text-charcoal transition-colors duration-smooth ease-smooth hover:bg-oat"
+                onClick={() => setShowUserMenu((prev) => !prev)}
+              >
+                <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-mocha text-[11px] font-semibold text-milk">
+                  {user?.firstName?.[0] || user?.email?.[0] || 'U'}
+                </span>
+                Account
+              </button>
+
+              {showUserMenu ? (
+                <div className="absolute right-0 z-20 mt-2 w-48 rounded-card border border-taupe/40 bg-milk p-2 shadow-soft">
+                  <Link
+                    to="/library"
+                    className="block rounded-card px-3 py-2 text-sm text-charcoal no-underline transition-colors hover:bg-oat"
+                    onClick={closeUserMenuAndNavigate}
+                  >
+                    My Library
+                  </Link>
+                  {['admin', 'super_admin'].includes(user?.role) ? (
+                    <Link
+                      to="/admin/dashboard"
+                      className="block rounded-card px-3 py-2 text-sm text-charcoal no-underline transition-colors hover:bg-oat"
+                      onClick={closeUserMenuAndNavigate}
+                    >
+                      Admin Panel
+                    </Link>
+                  ) : null}
+                  <button
+                    type="button"
+                    className="mt-1 w-full rounded-card px-3 py-2 text-left text-sm text-charcoal transition-colors hover:bg-oat"
+                    onClick={async () => {
+                      closeUserMenuAndNavigate();
+                      await logout();
+                    }}
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : null}
+            </div>
+          )}
         </div>
 
         <button
           type="button"
-          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-taupe/60 text-charcoal md:hidden"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-taupe/60 text-charcoal md:hidden"
           onClick={() => setIsMenuOpen((prev) => !prev)}
-          aria-label="Open menu"
+          aria-label="Toggle mobile menu"
         >
-          <span className="text-lg">?</span>
+          <span className="text-lg leading-none">{isMenuOpen ? 'x' : '|||'} </span>
         </button>
       </div>
 
       {isMenuOpen ? (
-        <div className="border-t border-taupe/30 bg-milk px-4 py-4 md:hidden">
+        <div className="border-t border-taupe/30 bg-milk px-4 py-4 shadow-soft md:hidden">
           <div className="flex flex-col gap-3">
-            {navItems.map((item) => (
-              <NavLink
-                key={item.label}
-                to={item.to}
-                onClick={() => setIsMenuOpen(false)}
-                className="rounded-card px-3 py-2 font-medium text-charcoal transition-colors hover:bg-oat hover:text-mocha"
-              >
-                {item.label}
-              </NavLink>
-            ))}
-            <Link to="/cart" onClick={() => setIsMenuOpen(false)} className="rounded-card px-3 py-2 text-charcoal hover:bg-oat">
+            {navItems.map((item) =>
+              item.isHashLink ? (
+                <Link
+                  key={item.label}
+                  to={item.to}
+                  className="rounded-card px-3 py-2 text-sm font-medium uppercase tracking-[0.12em] text-mocha no-underline transition-colors hover:bg-oat hover:text-charcoal"
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <NavLink
+                  key={item.label}
+                  to={item.to}
+                  className={({ isActive }) =>
+                    [
+                      'rounded-card px-3 py-2 text-sm font-medium uppercase tracking-[0.12em] no-underline transition-colors',
+                      isActive
+                        ? 'bg-oat text-charcoal'
+                        : 'text-mocha hover:bg-oat hover:text-charcoal',
+                    ].join(' ')
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              )
+            )}
+            <Link to="/cart" className="rounded-card px-3 py-2 text-sm text-charcoal no-underline hover:bg-oat">
               Cart ({itemCount})
             </Link>
-            <Link to="/library" onClick={() => setIsMenuOpen(false)} className="rounded-card px-3 py-2 text-charcoal hover:bg-oat">
-              My Library
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <Link
+                  to="/library"
+                  className="rounded-card px-3 py-2 text-sm text-charcoal no-underline hover:bg-oat"
+                >
+                  My Library
+                </Link>
+                <button
+                  type="button"
+                  className="rounded-card px-3 py-2 text-left text-sm text-charcoal hover:bg-oat"
+                  onClick={async () => {
+                    await logout();
+                  }}
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="rounded-card px-3 py-2 text-sm text-charcoal no-underline hover:bg-oat">
+                  Login
+                </Link>
+                <Link
+                  to="/register"
+                  className="rounded-card px-3 py-2 text-sm text-charcoal no-underline hover:bg-oat"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
         </div>
       ) : null}
     </header>
   );
 }
+

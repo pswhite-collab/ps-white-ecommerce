@@ -7,4 +7,14 @@ export default defineConfig({
     host: true,
     port: 5173,
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          reader: ['epubjs', 'pdfjs-dist'],
+        },
+      },
+    },
+  },
 });

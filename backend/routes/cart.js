@@ -3,7 +3,12 @@ import { Router } from 'express';
 const router = Router();
 
 router.get('/', (_req, res) => {
-  return res.status(501).json({ message: 'Cart routes will be implemented on Day 2' });
+  return res.json({
+    success: true,
+    data: {
+      message: 'Client-side cart is enabled for MVP. Server-side cart can be added later.',
+    },
+  });
 });
 
 export default router;

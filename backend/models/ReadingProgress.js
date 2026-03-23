@@ -5,8 +5,7 @@ const bookmarkSchema = new mongoose.Schema(
     page: { type: Number, required: true, min: 0 },
     note: { type: String, trim: true, maxlength: 500 },
     createdAt: { type: Date, default: Date.now },
-  },
-  { _id: false }
+  }
 );
 
 const readingProgressSchema = new mongoose.Schema(
@@ -61,6 +60,7 @@ readingProgressSchema.pre('save', function computeProgress(next) {
 });
 
 readingProgressSchema.index({ user: 1, book: 1 }, { unique: true });
+readingProgressSchema.index({ user: 1, lastReadAt: -1 });
 
 const ReadingProgress = mongoose.model('ReadingProgress', readingProgressSchema);
 
