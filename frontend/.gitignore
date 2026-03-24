@@ -1,0 +1,12 @@
+# frontend/.gitignore
+node_modules/
+dist/
+build/
+.env
+.env.*
+*.env
+.env.local
+.env.production
+.env.development
+coverage/
+*.log
