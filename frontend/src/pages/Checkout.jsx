@@ -142,22 +142,7 @@ export default function Checkout() {
     );
   };
 
-  const handlePayPalPayment = async (createdOrder) => {
-    const data = await paymentService.createPayPalOrder(createdOrder._id);
 
-    if (data.approveUrl) {
-      window.open(data.approveUrl, '_blank', 'noopener,noreferrer');
-      const approved = window.confirm(
-        'After approving the payment in PayPal, click OK to finalize this order.'
-      );
-
-      if (!approved) {
-        throw new Error('PayPal approval cancelled by user.');
-      }
-    }
-
-    await paymentService.capturePayPalOrder(createdOrder._id, data.paypalOrderId);
-  };
 
   const onPayNow = async () => {
     setLoading(true);
@@ -168,8 +153,6 @@ export default function Checkout() {
 
       if (paymentMethod === 'stripe') {
         await handleStripePayment(createdOrder);
-      } else if (paymentMethod === 'paypal') {
-        await handlePayPalPayment(createdOrder);
       } else {
         await handleRazorpayPayment(createdOrder);
       }
@@ -312,16 +295,8 @@ export default function Checkout() {
                   />
                   Stripe
                 </label>
-                <label className="flex items-center gap-2 rounded-card border border-taupe/40 bg-oat/50 px-3 py-2">
-                  <input
-                    type="radio"
-                    name="payment"
-                    checked={paymentMethod === 'paypal'}
-                    onChange={() => setPaymentMethod('paypal')}
-                  />
-                  PayPal
-                </label>
               </div>
+
 
               {error ? <p className="text-sm text-error">{error}</p> : null}
 

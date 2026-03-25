@@ -7,16 +7,20 @@ import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { ReaderProvider } from './context/ReaderContext';
 
+import { HelmetProvider } from 'react-helmet-async';
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || 'placeholder-client-id'}>
-      <AuthProvider>
-        <CartProvider>
-          <ReaderProvider>
-            <App />
-          </ReaderProvider>
-        </CartProvider>
-      </AuthProvider>
-    </GoogleOAuthProvider>
+    <HelmetProvider>
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || 'placeholder-client-id'}>
+        <AuthProvider>
+          <CartProvider>
+            <ReaderProvider>
+              <App />
+            </ReaderProvider>
+          </CartProvider>
+        </AuthProvider>
+      </GoogleOAuthProvider>
+    </HelmetProvider>
   </React.StrictMode>
 );

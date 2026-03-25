@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import BookGrid from '../components/books/BookGrid';
 import Button from '../components/common/Button';
@@ -184,6 +185,43 @@ export default function Home() {
 
   return (
     <div className="space-y-10 pb-4">
+      <Helmet>
+        <title>PS White | Literary Fiction & Premium Books</title>
+        <meta name="description" content="PS-White is a premium online bookstore specializing in literary fiction and character-driven storytelling. Worldwide shipping and instant digital downloads available." />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "What is the return policy?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "PS White offers a 30-day return policy for all physical books. Digital editions are non-refundable once downloaded."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How fast is shipping?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Physical books ship within 3-7 business days depending on global destination and carrier availability."
+                }
+              }
+            ]
+          })}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "PS White",
+            "url": "https://www.ps-white.com/",
+            "description": "PS-White is a premium online bookstore specializing in literary fiction."
+          })}
+        </script>
+      </Helmet>
       <section className="relative overflow-hidden rounded-[28px] border border-taupe/30 bg-hero-gradient px-6 py-14 shadow-strong sm:px-10 lg:px-14 lg:py-20">
         <div className="pointer-events-none absolute -right-16 -top-20 h-[320px] w-[320px] rounded-full bg-taupe/20 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-24 -left-20 h-[320px] w-[320px] rounded-full bg-charcoal/10 blur-3xl" />

@@ -146,7 +146,7 @@ export const orderCreateSchema = Joi.object({
     phone: Joi.string().allow('', null),
     sameAsShipping: Joi.boolean(),
   }).default({}),
-  paymentMethod: Joi.string().valid('razorpay', 'stripe', 'paypal', 'cod').default('razorpay'),
+  paymentMethod: Joi.string().valid('razorpay', 'stripe', 'cod').default('razorpay'),
   currency: Joi.string().length(3).default('INR'),
   guestEmail: Joi.string().email().allow('', null),
 });

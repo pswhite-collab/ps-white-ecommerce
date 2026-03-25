@@ -22,21 +22,10 @@ export const confirmStripePayment = async (orderId, transactionId) => {
   return unwrap(response);
 };
 
-export const createPayPalOrder = async (orderId) => {
-  const response = await api.post('/payment/paypal/create-order', { orderId });
-  return unwrap(response);
-};
-
-export const capturePayPalOrder = async (orderId, paypalOrderId) => {
-  const response = await api.post('/payment/paypal/capture', { orderId, paypalOrderId });
-  return unwrap(response);
-};
 
 export default {
   createRazorpayOrder,
   verifyRazorpayPayment,
   createStripeIntent,
   confirmStripePayment,
-  createPayPalOrder,
-  capturePayPalOrder,
 };

@@ -413,21 +413,7 @@ const run = async () => {
           });
           expectStatus('payment stripe confirm', stripeConfirm, [200]);
 
-          const paypalCreate = await request('POST', '/api/payment/paypal/create-order', {
-            token: customerToken,
-            body: { orderId: paymentOrderId },
-          });
-          expectStatus('payment paypal create-order', paypalCreate, [200]);
 
-          const paypalOrderId =
-            paypalCreate.json?.data?.paypalOrderId || `simulated_paypal_${paymentOrderId}`;
-
-          const paypalCapture = await request('POST', '/api/payment/paypal/capture', {
-            token: customerToken,
-            body: { orderId: paymentOrderId, paypalOrderId },
-          });
-          expectStatus('payment paypal capture', paypalCapture, [200]);
-        }
       }
     }
 
