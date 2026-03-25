@@ -416,6 +416,7 @@ const run = async () => {
 
       }
     }
+  }
 
     if (physicalBookId) {
       const physicalOrderResp = await request('POST', '/api/orders', {

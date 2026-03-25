@@ -33,6 +33,7 @@ export const createBook = async (payload) => {
   const isFormData = payload instanceof FormData;
   const response = await api.post('/books', payload, {
     headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : {},
+    timeout: isFormData ? 120000 : 60000,
   });
   return unwrap(response).book;
 };
@@ -41,6 +42,7 @@ export const updateBook = async (id, payload) => {
   const isFormData = payload instanceof FormData;
   const response = await api.put(`/books/${id}`, payload, {
     headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : {},
+    timeout: isFormData ? 120000 : 60000,
   });
   return unwrap(response).book;
 };

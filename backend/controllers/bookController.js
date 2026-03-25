@@ -4,6 +4,13 @@ import Review from '../models/Review.js';
 import { bookMutationSchema } from '../utils/validation.js';
 import { uploadToCloudinary } from '../utils/cloudinaryUpload.js';
 
+// Coerce string booleans that arrive via FormData (multipart)
+const coerceBoolStr = (val) => {
+  if (val === 'true') return true;
+  if (val === 'false') return false;
+  return val;
+};
+
 const buildFilters = (query) => {
   const filters = { active: true };
 
@@ -114,6 +121,10 @@ export const createBook = async (req, res, next) => {
       if (typeof bodyData.formats === 'string') bodyData.formats = JSON.parse(bodyData.formats);
     } catch(e) {}
 
+    // Coerce booleans from FormData strings
+    if (bodyData.featured !== undefined) bodyData.featured = coerceBoolStr(bodyData.featured);
+    if (bodyData.active !== undefined) bodyData.active = coerceBoolStr(bodyData.active);
+
     const { error, value } = bookMutationSchema.validate(bodyData);
     if (error) {
       if (req.files) {
@@ -188,6 +199,10 @@ export const updateBook = async (req, res, next) => {
       if (typeof bodyData.languages === 'string') bodyData.languages = JSON.parse(bodyData.languages);
       if (typeof bodyData.formats === 'string') bodyData.formats = JSON.parse(bodyData.formats);
     } catch(e) {}
+
+    // Coerce booleans from FormData strings
+    if (bodyData.featured !== undefined) bodyData.featured = coerceBoolStr(bodyData.featured);
+    if (bodyData.active !== undefined) bodyData.active = coerceBoolStr(bodyData.active);
 
     const { error, value } = bookMutationSchema.validate(bodyData);
     if (error) {
