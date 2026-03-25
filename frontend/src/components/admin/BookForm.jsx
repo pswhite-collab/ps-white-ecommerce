@@ -68,10 +68,6 @@ export default function BookForm({
   initialValue,
   onSubmit,
   onClose,
-  onUploadCover,
-  onUploadEpub,
-  onUploadPdf,
-  onUploadAudio,
   submitting,
 }) {
   const [form, setForm] = useState(defaultForm);
@@ -116,70 +112,68 @@ export default function BookForm({
       ? new Date(form.formats.physical.publicationDate).toISOString()
       : null;
 
-    const payload = {
-      title: (form.title || '').trim(),
-      subtitle: (form.subtitle || '').trim(),
-      author: (form.author || 'PS White').trim(),
-      description: form.description || '',
-      excerpt: form.excerpt || '',
-      genres: form.genres.split(',').map((item) => item.trim()).filter(Boolean),
-      languages: form.languages.split(',').map((item) => item.trim()).filter(Boolean),
-      featured: Boolean(form.featured),
-      active: Boolean(form.active),
-      formats: {
-        ebook: {
-          available: Boolean(form.formats.ebook.available),
-          price: normalizeNumber(form.formats.ebook.price),
-          pageCount: normalizeNumber(form.formats.ebook.pageCount),
-        },
-        physical: {
-          available: Boolean(form.formats.physical.available),
-          price: normalizeNumber(form.formats.physical.price),
-          stock: normalizeNumber(form.formats.physical.stock),
-          weight: normalizeNumber(form.formats.physical.weight),
-          pages: normalizeNumber(form.formats.physical.pages),
-          publicationDate: physicalPublicationDate,
-          isbn: (form.formats.physical.isbn || '').trim(),
-          publisher: (form.formats.physical.publisher || '').trim(),
-          binding: form.formats.physical.binding || 'Paperback',
-          language: (form.formats.physical.language || 'English').trim(),
-          dimensions: {
-            length: normalizeNumber(form.formats.physical.dimensions.length),
-            width: normalizeNumber(form.formats.physical.dimensions.width),
-            height: normalizeNumber(form.formats.physical.dimensions.height),
-          },
-        },
-        audiobook: {
-          available: Boolean(form.formats.audiobook.available),
-          price: normalizeNumber(form.formats.audiobook.price),
+    const formData = new FormData();
+
+    // Text / boolean fields
+    formData.append('title', (form.title || '').trim());
+    formData.append('subtitle', (form.subtitle || '').trim());
+    formData.append('author', (form.author || 'PS White').trim());
+    formData.append('description', form.description || '');
+    formData.append('excerpt', form.excerpt || '');
+    formData.append('featured', String(Boolean(form.featured)));
+    formData.append('active', String(Boolean(form.active)));
+
+    // Arrays → JSON strings (back-end parses these)
+    formData.append(
+      'genres',
+      JSON.stringify(form.genres.split(',').map((g) => g.trim()).filter(Boolean))
+    );
+    formData.append(
+      'languages',
+      JSON.stringify(form.languages.split(',').map((l) => l.trim()).filter(Boolean))
+    );
+
+    // Formats → single JSON blob so Joi can still validate structure
+    const formats = {
+      ebook: {
+        available: Boolean(form.formats.ebook.available),
+        price: Number(form.formats.ebook.price) || 0,
+        pageCount: Number(form.formats.ebook.pageCount) || 0,
+      },
+      physical: {
+        available: Boolean(form.formats.physical.available),
+        price: Number(form.formats.physical.price) || 0,
+        stock: Number(form.formats.physical.stock) || 0,
+        weight: Number(form.formats.physical.weight) || 0,
+        pages: Number(form.formats.physical.pages) || 0,
+        publicationDate: physicalPublicationDate,
+        isbn: (form.formats.physical.isbn || '').trim(),
+        publisher: (form.formats.physical.publisher || '').trim(),
+        binding: form.formats.physical.binding || 'Paperback',
+        language: (form.formats.physical.language || 'English').trim(),
+        dimensions: {
+          length: Number(form.formats.physical.dimensions.length) || 0,
+          width: Number(form.formats.physical.dimensions.width) || 0,
+          height: Number(form.formats.physical.dimensions.height) || 0,
         },
       },
+      audiobook: {
+        available: Boolean(form.formats.audiobook.available),
+        price: Number(form.formats.audiobook.price) || 0,
+      },
     };
+    formData.append('formats', JSON.stringify(formats));
 
-    const saved = await onSubmit(payload);
+    // File attachments
+    if (coverFile) formData.append('coverImage', coverFile);
+    if (epubFile)  formData.append('epubFile', epubFile);
+    if (pdfFile)   formData.append('pdfFile', pdfFile);
+    if (audioFile) formData.append('audioFile', audioFile);
 
-    if (!saved?._id) {
-      return;
-    }
-
-    if (coverFile) {
-      await onUploadCover(saved._id, coverFile);
-    }
-
-    if (epubFile) {
-      await onUploadEpub(saved._id, epubFile);
-    }
-
-    if (pdfFile) {
-      await onUploadPdf(saved._id, pdfFile);
-    }
-
-    if (audioFile) {
-      await onUploadAudio(saved._id, audioFile);
-    }
-
+    await onSubmit(formData);
     onClose?.();
   };
+
 
   return (
     <form id="bookForm" onSubmit={handleSubmit} className="flex max-h-[60vh] md:max-h-[70vh] flex-col">

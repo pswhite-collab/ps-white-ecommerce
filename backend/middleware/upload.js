@@ -1,8 +1,25 @@
 import multer from 'multer';
+import fs from 'fs';
+import path from 'path';
+
+const uploadDir = path.join(process.cwd(), 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + '-' + file.originalname.replace(/[^a-zA-Z0-9.]/g, '_'));
+  }
+});
 
 const createUploader = ({ maxSize, allowedMimeTypes }) =>
   multer({
-    storage: multer.memoryStorage(),
+    storage: storage,
     limits: {
       fileSize: maxSize,
     },
@@ -50,8 +67,15 @@ export const uploadAudio = createUploader({
 }).single('file');
 
 const upload = createUploader({
-  maxSize: 500 * 1024 * 1024,
+  maxSize: 500 * 1024 * 1024, // 500MB global max to accommodate audio
   allowedMimeTypes: [...IMAGE_MIME_TYPES, ...EBOOK_MIME_TYPES, ...AUDIO_MIME_TYPES],
 });
+
+export const uploadBookFiles = upload.fields([
+  { name: 'coverImage', maxCount: 1 },
+  { name: 'epubFile', maxCount: 1 },
+  { name: 'pdfFile', maxCount: 1 },
+  { name: 'audioFile', maxCount: 1 },
+]);
 
 export default upload;

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { protect } from '../middleware/auth.js';
 import adminProtect from '../middleware/adminAuth.js';
-import { uploadAudio, uploadCover, uploadEbook } from '../middleware/upload.js';
+import { uploadAudio, uploadCover, uploadEbook, uploadBookFiles } from '../middleware/upload.js';
 import {
   createBook,
   deleteBook,
@@ -25,8 +25,8 @@ router.get('/search', searchBooks);
 router.get('/', getAllBooks);
 router.get('/:id', getBookById);
 
-router.post('/', protect, adminProtect, createBook);
-router.put('/:id', protect, adminProtect, updateBook);
+router.post('/', protect, adminProtect, uploadBookFiles, createBook);
+router.put('/:id', protect, adminProtect, uploadBookFiles, updateBook);
 router.delete('/:id', protect, adminProtect, deleteBook);
 
 router.post('/:id/upload-cover', protect, adminProtect, uploadCover, uploadBookCover);

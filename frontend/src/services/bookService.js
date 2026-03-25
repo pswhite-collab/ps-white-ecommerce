@@ -30,12 +30,18 @@ export const searchBooks = async (query) => {
 };
 
 export const createBook = async (payload) => {
-  const response = await api.post('/books', payload);
+  const isFormData = payload instanceof FormData;
+  const response = await api.post('/books', payload, {
+    headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : {},
+  });
   return unwrap(response).book;
 };
 
 export const updateBook = async (id, payload) => {
-  const response = await api.put(`/books/${id}`, payload);
+  const isFormData = payload instanceof FormData;
+  const response = await api.put(`/books/${id}`, payload, {
+    headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : {},
+  });
   return unwrap(response).book;
 };
 

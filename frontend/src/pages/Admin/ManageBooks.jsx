@@ -130,10 +130,6 @@ export default function ManageBooks() {
             submitting={saving}
             onSubmit={saveBook}
             onClose={() => setIsModalOpen(false)}
-            onUploadCover={bookService.uploadBookCover}
-            onUploadEpub={(id, file) => bookService.uploadEbookFile(id, file, 'epub')}
-            onUploadPdf={(id, file) => bookService.uploadEbookFile(id, file, 'pdf')}
-            onUploadAudio={bookService.uploadAudiobook}
           />
         </Modal>
       </section>

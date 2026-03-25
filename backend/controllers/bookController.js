@@ -1,6 +1,8 @@
+import fs from 'fs';
 import Book from '../models/Book.js';
 import Review from '../models/Review.js';
 import { bookMutationSchema } from '../utils/validation.js';
+import { uploadToCloudinary } from '../utils/cloudinaryUpload.js';
 
 const buildFilters = (query) => {
   const filters = { active: true };
@@ -105,9 +107,59 @@ export const getBookById = async (req, res, next) => {
 
 export const createBook = async (req, res, next) => {
   try {
-    const { error, value } = bookMutationSchema.validate(req.body);
+    let bodyData = { ...req.body };
+    try {
+      if (typeof bodyData.genres === 'string') bodyData.genres = JSON.parse(bodyData.genres);
+      if (typeof bodyData.languages === 'string') bodyData.languages = JSON.parse(bodyData.languages);
+      if (typeof bodyData.formats === 'string') bodyData.formats = JSON.parse(bodyData.formats);
+    } catch(e) {}
+
+    const { error, value } = bookMutationSchema.validate(bodyData);
     if (error) {
+      if (req.files) {
+        Object.values(req.files).flat().forEach(file => {
+          if (file.path && fs.existsSync(file.path)) fs.unlinkSync(file.path);
+        });
+      }
       return res.status(400).json({ success: false, error: error.message });
+    }
+
+    if (req.files) {
+      if (req.files.coverImage?.[0]) {
+        const result = await uploadToCloudinary(req.files.coverImage[0].path, 'books/covers');
+        if (result) value.coverImage = { url: result.url, publicId: result.publicId };
+      }
+      
+      value.formats = value.formats || {};
+
+      if (req.files.epubFile?.[0]) {
+        const result = await uploadToCloudinary(req.files.epubFile[0].path, 'books/ebooks');
+        if (result) {
+          value.formats.ebook = value.formats.ebook || {};
+          value.formats.ebook.available = true;
+          value.formats.ebook.files = value.formats.ebook.files || {};
+          value.formats.ebook.files.epub = result;
+        }
+      }
+
+      if (req.files.pdfFile?.[0]) {
+        const result = await uploadToCloudinary(req.files.pdfFile[0].path, 'books/ebooks');
+        if (result) {
+          value.formats.ebook = value.formats.ebook || {};
+          value.formats.ebook.available = true;
+          value.formats.ebook.files = value.formats.ebook.files || {};
+          value.formats.ebook.files.pdf = result;
+        }
+      }
+
+      if (req.files.audioFile?.[0]) {
+        const result = await uploadToCloudinary(req.files.audioFile[0].path, 'books/audiobooks');
+        if (result) {
+          value.formats.audiobook = value.formats.audiobook || {};
+          value.formats.audiobook.available = true;
+          value.formats.audiobook.file = result;
+        }
+      }
     }
 
     const created = await Book.create(value);
@@ -119,22 +171,87 @@ export const createBook = async (req, res, next) => {
       },
     });
   } catch (error) {
+    if (req.files) {
+      Object.values(req.files).flat().forEach(file => {
+        if (file.path && fs.existsSync(file.path)) fs.unlinkSync(file.path);
+      });
+    }
     return next(error);
   }
 };
 
 export const updateBook = async (req, res, next) => {
   try {
-    const { error, value } = bookMutationSchema.validate(req.body);
+    let bodyData = { ...req.body };
+    try {
+      if (typeof bodyData.genres === 'string') bodyData.genres = JSON.parse(bodyData.genres);
+      if (typeof bodyData.languages === 'string') bodyData.languages = JSON.parse(bodyData.languages);
+      if (typeof bodyData.formats === 'string') bodyData.formats = JSON.parse(bodyData.formats);
+    } catch(e) {}
+
+    const { error, value } = bookMutationSchema.validate(bodyData);
     if (error) {
+      if (req.files) {
+        Object.values(req.files).flat().forEach(file => {
+          if (file.path && fs.existsSync(file.path)) fs.unlinkSync(file.path);
+        });
+      }
       return res.status(400).json({ success: false, error: error.message });
     }
 
-    const updated = await Book.findByIdAndUpdate(req.params.id, { $set: value }, { new: true });
+    if (req.files) {
+      if (req.files.coverImage?.[0]) {
+        const result = await uploadToCloudinary(req.files.coverImage[0].path, 'books/covers');
+        if (result) value.coverImage = { url: result.url, publicId: result.publicId };
+      }
+      
+      value.formats = value.formats || {};
 
-    if (!updated) {
+      if (req.files.epubFile?.[0]) {
+        const result = await uploadToCloudinary(req.files.epubFile[0].path, 'books/ebooks');
+        if (result) {
+          value.formats.ebook = value.formats.ebook || {};
+          value.formats.ebook.available = true;
+          value.formats.ebook.files = value.formats.ebook.files || {};
+          value.formats.ebook.files.epub = result;
+        }
+      }
+
+      if (req.files.pdfFile?.[0]) {
+        const result = await uploadToCloudinary(req.files.pdfFile[0].path, 'books/ebooks');
+        if (result) {
+          value.formats.ebook = value.formats.ebook || {};
+          value.formats.ebook.available = true;
+          value.formats.ebook.files = value.formats.ebook.files || {};
+          value.formats.ebook.files.pdf = result;
+        }
+      }
+
+      if (req.files.audioFile?.[0]) {
+        const result = await uploadToCloudinary(req.files.audioFile[0].path, 'books/audiobooks');
+        if (result) {
+          value.formats.audiobook = value.formats.audiobook || {};
+          value.formats.audiobook.available = true;
+          value.formats.audiobook.file = result;
+        }
+      }
+    }
+
+    // Merge nested updates for formats and files to not accidentally overwrite existing subfields like `price`
+    // Find current book first 
+    const currentBook = await Book.findById(req.params.id);
+    if (!currentBook) {
+      if (req.files) {
+        Object.values(req.files).flat().forEach(file => {
+          if (file.path && fs.existsSync(file.path)) fs.unlinkSync(file.path);
+        });
+      }
       return res.status(404).json({ success: false, error: 'Book not found' });
     }
+
+    // Instead of raw $set: value, since it replaces entire objects, we let Mongoose handle deep merging smoothly:
+    Object.assign(currentBook, value);
+    const updated = await currentBook.save();
 
     return res.json({
       success: true,
@@ -143,6 +260,11 @@ export const updateBook = async (req, res, next) => {
       },
     });
   } catch (error) {
+    if (req.files) {
+      Object.values(req.files).flat().forEach(file => {
+        if (file.path && fs.existsSync(file.path)) fs.unlinkSync(file.path);
+      });
+    }
     return next(error);
   }
 };
