@@ -34,8 +34,16 @@ const bookSchema = new mongoose.Schema(
         available: { type: Boolean, default: false },
         price: { type: Number, default: 0, min: 0 },
         files: {
-          epub: fileSchema,
-          pdf: fileSchema,
+          epub: {
+            url: { type: String, trim: true },
+            publicId: { type: String, trim: true },
+            size: { type: Number, default: 0 },
+          },
+          pdf: {
+            url: { type: String, trim: true },
+            publicId: { type: String, trim: true },
+            size: { type: Number, default: 0 },
+          },
         },
         pageCount: { type: Number, default: 0, min: 0 },
       },
@@ -77,7 +85,8 @@ const bookSchema = new mongoose.Schema(
       audiobook: {
         available: { type: Boolean, default: false },
         price: { type: Number, default: 0, min: 0 },
-        file: fileSchema,
+        url: { type: String, trim: true },
+        file: fileSchema, // Keeping existing file structure for compatibility if needed
       },
     },
     reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }],

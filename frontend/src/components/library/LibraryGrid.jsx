@@ -16,6 +16,9 @@ export default function LibraryGrid({ items = [], onDownload }) {
         const percent = progress?.progressPercentage || 0;
         const lastReadLabel = progress?.lastReadAt ? new Date(progress.lastReadAt).toLocaleString() : 'Not started';
 
+        const pdfUrl = book?.formats?.ebook?.files?.pdf?.url;
+        const epubUrl = book?.formats?.ebook?.files?.epub?.url;
+
         return (
           <article key={book._id} className="rounded-card border border-taupe/30 bg-milk p-4 shadow-soft">
             <div className="aspect-[3/4] overflow-hidden rounded-card bg-oat">
@@ -36,10 +39,25 @@ export default function LibraryGrid({ items = [], onDownload }) {
             <p className="mt-1 text-xs text-charcoal/60">{percent}% completed</p>
 
             <div className="mt-4 flex flex-wrap gap-2">
-              <Link to={`/reader/${book._id}`}>
-                <Button size="sm">{percent > 0 ? 'Continue Reading' : 'Start Reading'}</Button>
-              </Link>
-              <Button size="sm" variant="outline" onClick={() => onDownload(book._id, 'pdf')}>Download PDF</Button>
+              {epubUrl ? (
+                <Link to={`/reader/${book._id}`}>
+                  <Button size="sm">{percent > 0 ? 'Continue Reading' : 'Start Reading'}</Button>
+                </Link>
+              ) : (
+                <Button size="sm" className="opacity-50 cursor-not-allowed" onClick={(e) => e.preventDefault()}>
+                  {percent > 0 ? 'Continue Reading' : 'Start Reading'}
+                </Button>
+              )}
+
+              {pdfUrl ? (
+                <a href={pdfUrl} target="_blank" rel="noopener noreferrer">
+                  <Button size="sm" variant="outline">Download PDF</Button>
+                </a>
+              ) : (
+                <Button size="sm" variant="outline" className="opacity-50 cursor-not-allowed" onClick={(e) => e.preventDefault()}>
+                  Download PDF
+                </Button>
+              )}
             </div>
           </article>
         );
