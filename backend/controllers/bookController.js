@@ -52,6 +52,18 @@ const resolveSort = (sort) => {
   return { createdAt: -1 };
 };
 
+const toPlainObject = (value) => {
+  if (!value) {
+    return {};
+  }
+
+  if (typeof value.toObject === 'function') {
+    return value.toObject();
+  }
+
+  return { ...value };
+};
+
 export const getAllBooks = async (req, res, next) => {
   try {
     const page = Math.max(1, Number.parseInt(req.query.page || '1', 10));
@@ -264,8 +276,43 @@ export const updateBook = async (req, res, next) => {
       return res.status(404).json({ success: false, error: 'Book not found' });
     }
 
-    // Instead of raw $set: value, since it replaces entire objects, we let Mongoose handle deep merging smoothly:
-    Object.assign(currentBook, value);
+    const currentFormats = toPlainObject(currentBook.formats);
+    const incomingFormats = value.formats || {};
+
+    const mergedFormats = {
+      ...currentFormats,
+      ...incomingFormats,
+      ebook: {
+        ...(currentFormats.ebook || {}),
+        ...(incomingFormats.ebook || {}),
+        files: {
+          ...toPlainObject(currentFormats.ebook?.files),
+          ...toPlainObject(incomingFormats.ebook?.files),
+        },
+      },
+      physical: {
+        ...(currentFormats.physical || {}),
+        ...(incomingFormats.physical || {}),
+        dimensions: {
+          ...toPlainObject(currentFormats.physical?.dimensions),
+          ...toPlainObject(incomingFormats.physical?.dimensions),
+        },
+      },
+      audiobook: {
+        ...(currentFormats.audiobook || {}),
+        ...(incomingFormats.audiobook || {}),
+        file: {
+          ...toPlainObject(currentFormats.audiobook?.file),
+          ...toPlainObject(incomingFormats.audiobook?.file),
+        },
+      },
+    };
+
+    Object.assign(currentBook, {
+      ...value,
+      coverImage: value.coverImage || currentBook.coverImage,
+      formats: mergedFormats,
+    });
     const updated = await currentBook.save();
 
     return res.json({
