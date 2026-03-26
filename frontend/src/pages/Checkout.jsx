@@ -135,11 +135,12 @@ export default function Checkout() {
   };
 
   const handleStripePayment = async (createdOrder) => {
-    const intent = await paymentService.createStripeIntent(createdOrder._id);
-    await paymentService.confirmStripePayment(
-      createdOrder._id,
-      intent.clientSecret || `stripe_${Date.now()}`
-    );
+    const session = await paymentService.createStripeCheckoutSession(createdOrder._id);
+    if (!session?.url) {
+      throw new Error('Unable to start Stripe checkout. Please try again.');
+    }
+
+    window.location.assign(session.url);
   };
 
 
@@ -153,6 +154,7 @@ export default function Checkout() {
 
       if (paymentMethod === 'stripe') {
         await handleStripePayment(createdOrder);
+        return;
       } else {
         await handleRazorpayPayment(createdOrder);
       }

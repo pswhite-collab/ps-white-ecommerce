@@ -106,6 +106,37 @@ const buildPreviewPayload = (book) => {
   };
 };
 
+const resolveReaderAssetUrl = (file, expiresIn) => {
+  if (!file) {
+    return null;
+  }
+
+  const storedUrl = String(file.url || '').trim();
+  const usesPrivateDelivery = /\/private\//.test(storedUrl);
+
+  if (usesPrivateDelivery && file.publicId) {
+    return generateSecureUrl(file.publicId, {
+      resourceType: 'raw',
+      type: 'private',
+      expiresIn,
+    });
+  }
+
+  if (storedUrl) {
+    return storedUrl;
+  }
+
+  if (file.publicId) {
+    return generateSecureUrl(file.publicId, {
+      resourceType: 'raw',
+      type: 'private',
+      expiresIn,
+    });
+  }
+
+  return null;
+};
+
 export const getLibrary = async (req, res, next) => {
   try {
     const orders = await Order.find({
@@ -397,27 +428,15 @@ export const getBookContent = async (req, res, next) => {
       return res.status(404).json({ success: false, error: 'Book not found' });
     }
 
-    const epubPublicId = book.formats?.ebook?.files?.epub?.publicId;
-    const pdfPublicId = book.formats?.ebook?.files?.pdf?.publicId;
+    const epubFile = book.formats?.ebook?.files?.epub;
+    const pdfFile = book.formats?.ebook?.files?.pdf;
     const expiresAt = new Date(Date.now() + expiresIn * 1000).toISOString();
 
     return res.json({
       success: true,
       data: {
-        epubUrl: epubPublicId
-          ? generateSecureUrl(epubPublicId, {
-              resourceType: 'raw',
-              type: 'private',
-              expiresIn,
-            })
-          : null,
-        pdfUrl: pdfPublicId
-          ? generateSecureUrl(pdfPublicId, {
-              resourceType: 'raw',
-              type: 'private',
-              expiresIn,
-            })
-          : null,
+        epubUrl: resolveReaderAssetUrl(epubFile, expiresIn),
+        pdfUrl: resolveReaderAssetUrl(pdfFile, expiresIn),
         expiresAt,
         security: {
           watermarkText: req.user?.email

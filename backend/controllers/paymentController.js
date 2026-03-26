@@ -13,10 +13,40 @@ const razorpayClient =
 const stripeClient = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
 const isProduction = process.env.NODE_ENV === 'production';
 
+const resolveFrontendBaseUrl = () =>
+  process.env.FRONTEND_URL || process.env.CLIENT_URL || 'http://localhost:5173';
+
+const getOrderForPayment = async (req, orderId) => {
+  const order = await Order.findById(orderId);
+  if (!order) {
+    return null;
+  }
+
+  const isAdmin = ['admin', 'super_admin'].includes(req.user?.role);
+  const isOwner = req.user?._id && String(order.user) === String(req.user._id);
+
+  if (!isAdmin && !isOwner) {
+    const error = new Error('Access denied');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  return order;
+};
+
+const sendOrderConfirmation = async (req, order) => {
+  if (req.user?.email || order.guestEmail) {
+    await sendOrderConfirmationEmail({
+      to: req.user?.email || order.guestEmail,
+      orderNumber: order.orderNumber,
+    });
+  }
+};
+
 export const createRazorpayOrder = async (req, res, next) => {
   try {
     const { orderId } = req.body;
-    const order = await Order.findById(orderId);
+    const order = await getOrderForPayment(req, orderId);
     if (!order) {
       return res.status(404).json({ success: false, error: 'Order not found' });
     }
@@ -69,6 +99,72 @@ export const createRazorpayOrder = async (req, res, next) => {
   }
 };
 
+export const createStripeCheckoutSession = async (req, res, next) => {
+  try {
+    const { orderId } = req.body;
+    const order = await getOrderForPayment(req, orderId);
+    if (!order) {
+      return res.status(404).json({ success: false, error: 'Order not found' });
+    }
+
+    const frontendBaseUrl = resolveFrontendBaseUrl();
+    const successUrl = `${frontendBaseUrl}/order-success/${order._id}?session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${frontendBaseUrl}/checkout?cancelled=1`;
+
+    if (!stripeClient) {
+      if (isProduction) {
+        return res.status(503).json({ success: false, error: 'Stripe is not configured' });
+      }
+
+      return res.json({
+        success: true,
+        data: {
+          url: `${frontendBaseUrl}/order-success/${order._id}?session_id=simulated_${order._id}`,
+          sessionId: `simulated_${order._id}`,
+        },
+      });
+    }
+
+    const session = await stripeClient.checkout.sessions.create({
+      mode: 'payment',
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      customer_email: req.user?.email || order.guestEmail || undefined,
+      metadata: {
+        orderId: String(order._id),
+      },
+      payment_intent_data: {
+        metadata: {
+          orderId: String(order._id),
+        },
+      },
+      line_items: [
+        {
+          quantity: 1,
+          price_data: {
+            currency: (order.currency || 'usd').toLowerCase(),
+            unit_amount: Math.round(order.total * 100),
+            product_data: {
+              name: `Order ${order.orderNumber}`,
+              description: `${order.items.length} item(s) from PS White Books`,
+            },
+          },
+        },
+      ],
+    });
+
+    return res.json({
+      success: true,
+      data: {
+        url: session.url,
+        sessionId: session.id,
+      },
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 export const verifyRazorpayPayment = async (req, res, next) => {
   try {
     const {
@@ -78,7 +174,7 @@ export const verifyRazorpayPayment = async (req, res, next) => {
       razorpay_signature: razorpaySignature,
     } = req.body;
 
-    const order = await Order.findById(orderId);
+    const order = await getOrderForPayment(req, orderId);
     if (!order) {
       return res.status(404).json({ success: false, error: 'Order not found' });
     }
@@ -103,12 +199,7 @@ export const verifyRazorpayPayment = async (req, res, next) => {
       paymentStatus: 'paid',
     });
 
-    if (req.user?.email || order.guestEmail) {
-      await sendOrderConfirmationEmail({
-        to: req.user?.email || order.guestEmail,
-        orderNumber: order.orderNumber,
-      });
-    }
+    await sendOrderConfirmation(req, order);
 
     return res.json({ success: true, data: { order: paidOrder } });
   } catch (error) {
@@ -119,7 +210,7 @@ export const verifyRazorpayPayment = async (req, res, next) => {
 export const createStripeIntent = async (req, res, next) => {
   try {
     const { orderId } = req.body;
-    const order = await Order.findById(orderId);
+    const order = await getOrderForPayment(req, orderId);
     if (!order) {
       return res.status(404).json({ success: false, error: 'Order not found' });
     }
@@ -169,21 +260,69 @@ export const createStripeIntent = async (req, res, next) => {
 
 export const confirmStripePayment = async (req, res, next) => {
   try {
-    const { orderId, transactionId } = req.body;
+    const { orderId, transactionId, sessionId } = req.body;
     if (!orderId) {
       return res.status(400).json({ success: false, error: 'orderId is required' });
     }
 
+    const order = await getOrderForPayment(req, orderId);
+    if (!order) {
+      return res.status(404).json({ success: false, error: 'Order not found' });
+    }
+
+    let verifiedTransactionId = transactionId;
+
+    if (stripeClient) {
+      if (sessionId) {
+        const session = await stripeClient.checkout.sessions.retrieve(sessionId, {
+          expand: ['payment_intent'],
+        });
+
+        const sessionOrderId =
+          session.metadata?.orderId || session.payment_intent?.metadata?.orderId || '';
+        const isPaid =
+          session.payment_status === 'paid' || session.payment_intent?.status === 'succeeded';
+
+        if (String(sessionOrderId) !== String(order._id)) {
+          return res.status(400).json({ success: false, error: 'Stripe session does not match order' });
+        }
+
+        if (!isPaid) {
+          return res.status(400).json({ success: false, error: 'Stripe payment is not completed yet' });
+        }
+
+        verifiedTransactionId = session.payment_intent?.id || session.id;
+      } else if (transactionId) {
+        const paymentIntent = await stripeClient.paymentIntents.retrieve(transactionId);
+        if (paymentIntent.status !== 'succeeded') {
+          return res.status(400).json({ success: false, error: 'Stripe payment is not completed yet' });
+        }
+
+        if (String(paymentIntent.metadata?.orderId || '') !== String(order._id)) {
+          return res.status(400).json({ success: false, error: 'Stripe payment does not match order' });
+        }
+
+        verifiedTransactionId = paymentIntent.id;
+      } else {
+        return res.status(400).json({
+          success: false,
+          error: 'A Stripe sessionId or payment intent transactionId is required',
+        });
+      }
+    } else if (isProduction) {
+      return res.status(503).json({ success: false, error: 'Stripe is not configured' });
+    } else {
+      verifiedTransactionId = transactionId || sessionId || `simulated_stripe_${Date.now()}`;
+    }
+
     const paidOrder = await markOrderPaid({
-      orderId,
+      orderId: order._id,
       method: 'stripe',
-      transactionId: transactionId || `simulated_stripe_${Date.now()}`,
+      transactionId: verifiedTransactionId,
       paymentStatus: 'paid',
     });
 
-    if (!paidOrder) {
-      return res.status(404).json({ success: false, error: 'Order not found' });
-    }
+    await sendOrderConfirmation(req, order);
 
     return res.json({ success: true, data: { order: paidOrder } });
   } catch (error) {
@@ -220,5 +359,4 @@ export const stripeWebhook = async (req, res, next) => {
     return next(error);
   }
 };
-
 

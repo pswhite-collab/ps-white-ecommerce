@@ -17,8 +17,13 @@ export const createStripeIntent = async (orderId) => {
   return unwrap(response);
 };
 
-export const confirmStripePayment = async (orderId, transactionId) => {
-  const response = await api.post('/payment/stripe/confirm', { orderId, transactionId });
+export const createStripeCheckoutSession = async (orderId) => {
+  const response = await api.post('/payment/stripe/create-session', { orderId });
+  return unwrap(response);
+};
+
+export const confirmStripePayment = async (orderId, transactionId, sessionId) => {
+  const response = await api.post('/payment/stripe/confirm', { orderId, transactionId, sessionId });
   return unwrap(response);
 };
 
@@ -26,6 +31,7 @@ export const confirmStripePayment = async (orderId, transactionId) => {
 export default {
   createRazorpayOrder,
   verifyRazorpayPayment,
+  createStripeCheckoutSession,
   createStripeIntent,
   confirmStripePayment,
 };
