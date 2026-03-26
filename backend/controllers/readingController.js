@@ -4,7 +4,7 @@ import Order from '../models/Order.js';
 import ReadingProgress from '../models/ReadingProgress.js';
 import User from '../models/User.js';
 import { bookmarkSchema, progressUpdateSchema, readingSettingsSchema } from '../utils/validation.js';
-import { generateSecureUrl } from '../utils/generateSignedUrl.js';
+import { generateSecureDownloadUrl } from '../utils/generateSignedUrl.js';
 
 const ORDER_OWNERSHIP_STATUSES = ['processing', 'shipped', 'delivered', 'completed'];
 const configuredPreviewLimit = Number.parseInt(process.env.READER_PREVIEW_CHAR_LIMIT || '2400', 10);
@@ -106,32 +106,31 @@ const buildPreviewPayload = (book) => {
   };
 };
 
-const resolveReaderAssetUrl = (file, expiresIn) => {
+const resolveReaderAssetUrl = (file, expiresIn, format) => {
   if (!file) {
     return null;
   }
 
   const storedUrl = String(file.url || '').trim();
   const usesPrivateDelivery = /\/private\//.test(storedUrl);
+  const usesAuthenticatedDelivery = /\/authenticated\//.test(storedUrl);
 
-  if (usesPrivateDelivery && file.publicId) {
-    return generateSecureUrl(file.publicId, {
-      resourceType: 'raw',
-      type: 'private',
+  if (file.publicId) {
+    const deliveryType = usesPrivateDelivery
+      ? 'private'
+      : usesAuthenticatedDelivery
+        ? 'authenticated'
+        : 'upload';
+
+    return generateSecureDownloadUrl(file.publicId, {
+      type: deliveryType,
       expiresIn,
+      format: file.publicId.endsWith(`.${format}`) ? null : format,
     });
   }
 
   if (storedUrl) {
-    return storedUrl;
-  }
-
-  if (file.publicId) {
-    return generateSecureUrl(file.publicId, {
-      resourceType: 'raw',
-      type: 'private',
-      expiresIn,
-    });
+      return storedUrl;
   }
 
   return null;
@@ -435,8 +434,8 @@ export const getBookContent = async (req, res, next) => {
     return res.json({
       success: true,
       data: {
-        epubUrl: resolveReaderAssetUrl(epubFile, expiresIn),
-        pdfUrl: resolveReaderAssetUrl(pdfFile, expiresIn),
+        epubUrl: resolveReaderAssetUrl(epubFile, expiresIn, 'epub'),
+        pdfUrl: resolveReaderAssetUrl(pdfFile, expiresIn, 'pdf'),
         expiresAt,
         security: {
           watermarkText: req.user?.email

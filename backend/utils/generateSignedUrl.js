@@ -20,6 +20,25 @@ export const generateSecureUrl = (
   });
 };
 
+export const generateSecureDownloadUrl = (
+  publicId,
+  {
+    expiresIn = 24 * 60 * 60,
+    type = 'private',
+    format,
+  } = {}
+) => {
+  const expiresAt = Math.floor(Date.now() / 1000) + expiresIn;
+
+  return cloudinary.utils.private_download_url(publicId, format || null, {
+    resource_type: 'raw',
+    type,
+    attachment: false,
+    expires_at: expiresAt,
+    secure: true,
+  });
+};
+
 const generateSignedUrl = (publicId, expiresIn = 24 * 60 * 60) => {
   return generateSecureUrl(publicId, { expiresIn });
 };
