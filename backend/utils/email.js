@@ -1,27 +1,99 @@
-import { emailTemplates, sendEmail as sendRawEmail } from '../config/resend.js';
+import resend from '../config/resend.js';
 
-export const sendEmail = async ({ to, subject, html }) => {
-  return await sendRawEmail({ to, subject, html });
+const DEFAULT_FROM = 'PS White <noreply@pswhite.com>';
+const FALLBACK_FROM = 'PS White Books <onboarding@resend.dev>';
+
+const emailTemplates = {
+  welcome: ({ firstName = 'Reader' }) => ({
+    subject: 'Welcome to PS White Books',
+    html: `<p>Hello ${firstName},</p><p>Welcome to PS White Books. Your reader account is ready.</p>`,
+  }),
+  verification: ({ firstName = 'Reader', verifyUrl }) => ({
+    subject: 'Verify your email',
+    html: `<p>Hello ${firstName},</p><p>Please verify your email by clicking <a href="${verifyUrl}">this link</a>.</p>`,
+  }),
+  passwordReset: ({ firstName = 'Reader', resetUrl }) => ({
+    subject: 'Reset your password',
+    html: `<p>Hello ${firstName},</p><p>You can reset your password using <a href="${resetUrl}">this link</a>.</p>`,
+  }),
+  orderConfirmation: ({ orderNumber }) => ({
+    subject: `Order ${orderNumber} confirmed`,
+    html: `<p>Your order <strong>${orderNumber}</strong> is confirmed.</p>`,
+  }),
+};
+
+const isSenderIdentityError = (err) => {
+  const errorText = String(
+    err?.message ||
+      err?.error?.message ||
+      err?.response?.data?.message ||
+      ''
+  ).toLowerCase();
+
+  return (
+    errorText.includes('sender') ||
+    errorText.includes('from') ||
+    errorText.includes('identity') ||
+    errorText.includes('verify')
+  );
+};
+
+export const sendEmail = async ({ to, subject, html, from }) => {
+  if (!process.env.RESEND_API_KEY) {
+    const missingKeyError = new Error('RESEND_API_KEY is missing');
+    console.error('Email send failed:', missingKeyError);
+    throw missingKeyError;
+  }
+
+  const configuredFrom = from || process.env.EMAIL_FROM || DEFAULT_FROM;
+
+  try {
+    const result = await resend.emails.send({ from: configuredFrom, to, subject, html });
+    console.log('Email sent successfully:', result);
+    return result;
+  } catch (err) {
+    const shouldRetryWithFallback =
+      configuredFrom !== FALLBACK_FROM && isSenderIdentityError(err);
+
+    if (shouldRetryWithFallback) {
+      try {
+        const fallbackResult = await resend.emails.send({
+          from: FALLBACK_FROM,
+          to,
+          subject,
+          html,
+        });
+        console.log('Email sent successfully:', fallbackResult);
+        return fallbackResult;
+      } catch (fallbackErr) {
+        console.error('Email send failed:', fallbackErr);
+        throw fallbackErr;
+      }
+    }
+
+    console.error('Email send failed:', err);
+    throw err;
+  }
 };
 
 export const sendWelcomeEmail = async ({ to, firstName }) => {
   const template = emailTemplates.welcome({ firstName });
-  return await sendRawEmail({ to, ...template });
+  return await sendEmail({ to, ...template });
 };
 
 export const sendVerificationEmail = async ({ to, firstName, verifyUrl }) => {
   const template = emailTemplates.verification({ firstName, verifyUrl });
-  return await sendRawEmail({ to, ...template });
+  return await sendEmail({ to, ...template });
 };
 
 export const sendPasswordResetEmail = async ({ to, firstName, resetUrl }) => {
   const template = emailTemplates.passwordReset({ firstName, resetUrl });
-  return await sendRawEmail({ to, ...template });
+  return await sendEmail({ to, ...template });
 };
 
 export const sendOrderConfirmationEmail = async ({ to, orderNumber }) => {
   const template = emailTemplates.orderConfirmation({ orderNumber });
-  return await sendRawEmail({ to, ...template });
+  return await sendEmail({ to, ...template });
 };
 
 export const sendShippingNotificationEmail = async ({ to, customerName, order }) => {
@@ -58,7 +130,7 @@ export const sendShippingNotificationEmail = async ({ to, customerName, order })
     </div>
   `;
 
-  return await sendRawEmail({ to, subject, html });
+  return await sendEmail({ to, subject, html });
 };
 
 export default {

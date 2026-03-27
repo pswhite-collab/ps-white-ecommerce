@@ -35,11 +35,23 @@ const getOrderForPayment = async (req, orderId) => {
 };
 
 const sendOrderConfirmation = async (req, order) => {
-  if (req.user?.email || order.guestEmail) {
+  const recipientEmail = req.user?.email || order.guestEmail;
+  if (!recipientEmail) {
+    return;
+  }
+
+  try {
     await sendOrderConfirmationEmail({
-      to: req.user?.email || order.guestEmail,
+      to: recipientEmail,
       orderNumber: order.orderNumber,
     });
+  } catch (err) {
+    console.error('Order confirmation email failed:', {
+      orderId: String(order._id),
+      recipientEmail,
+      message: err?.message || 'Unknown error',
+    });
+    throw err;
   }
 };
 
@@ -359,4 +371,3 @@ export const stripeWebhook = async (req, res, next) => {
     return next(error);
   }
 };
-

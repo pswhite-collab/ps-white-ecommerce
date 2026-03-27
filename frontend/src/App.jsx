@@ -5,9 +5,9 @@ import {
   Route,
   Routes,
 } from 'react-router-dom';
+import MobileBottomNav from './components/MobileBottomNav';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
-import MobileBottomNav from './components/layout/MobileBottomNav';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import QuotePopup from './components/common/QuotePopup';
 import Home from './pages/Home';
