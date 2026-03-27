@@ -5,9 +5,9 @@ import Sidebar from '../../components/layout/Sidebar';
 import adminService from '../../services/adminService';
 
 const formatCurrency = (value = 0) =>
-  new Intl.NumberFormat('en-US', {
+  new Intl.NumberFormat('en-GB', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'GBP',
     maximumFractionDigits: 2,
   }).format(Number(value) || 0);
 

@@ -258,7 +258,7 @@ export default function BookForm({
                 <Input
                   type="number"
                   step="0.01"
-                  label="Physical Price ($)"
+                  label="Physical Price (GBP)"
                   value={form.formats.physical.price}
                   onChange={(event) => setNested(['formats', 'physical', 'price'], event.target.value)}
                   required
@@ -374,7 +374,7 @@ export default function BookForm({
               <Input
                 type="number"
                 step="0.01"
-                label="Audiobook Price ($)"
+                label="Audiobook Price (GBP)"
                 value={form.formats.audiobook.price}
                 onChange={(event) => setNested(['formats', 'audiobook', 'price'], event.target.value)}
               />

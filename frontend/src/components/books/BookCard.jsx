@@ -82,7 +82,7 @@ export default function BookCard({ book }) {
             >
               {formatLabels[format]}
               {' '}
-              ${Number(book.formats?.[format]?.price || 0).toFixed(2)}
+              {`\u00A3${Number(book.formats?.[format]?.price || 0).toFixed(2)}`}
             </span>
           ))}
         </div>
@@ -91,7 +91,7 @@ export default function BookCard({ book }) {
           <p className="mt-2 text-xs text-taupe">
             {book.formats.physical.stock > 0 ? (
               <>
-                <span className="text-success">●</span>
+                <span className="text-success">&#9679;</span>
                 {' '}
                 In Stock (
                 {book.formats.physical.stock}
@@ -106,8 +106,8 @@ export default function BookCard({ book }) {
 
         <div className="mt-3">
           <p className="font-display text-3xl font-semibold text-charcoal">
-            ${price.toFixed(2)}
-            <span className="ml-2 text-sm font-normal text-mocha/70">USD</span>
+            {`\u00A3${price.toFixed(2)}`}
+            <span className="ml-2 text-sm font-normal text-mocha/70">GBP</span>
           </p>
         </div>
 

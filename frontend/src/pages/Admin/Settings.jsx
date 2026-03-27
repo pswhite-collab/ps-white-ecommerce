@@ -9,7 +9,7 @@ const DEFAULT_SETTINGS = {
   allowRegistration: true,
   maintenanceMode: false,
   freeShippingThreshold: 50,
-  currency: 'USD',
+  currency: 'GBP',
   timezone: 'America/New_York',
 };
 
@@ -215,13 +215,13 @@ export default function Settings() {
               Currency
               <select
                 name="currency"
-                value={settings.currency || 'USD'}
+                value={settings.currency || 'GBP'}
                 onChange={handleChange}
                 className="rounded-card border border-taupe/50 bg-white px-3 py-2"
               >
+                <option value="GBP">GBP - British Pound</option>
                 <option value="USD">USD - US Dollar</option>
                 <option value="EUR">EUR - Euro</option>
-                <option value="GBP">GBP - British Pound</option>
                 <option value="INR">INR - Indian Rupee</option>
               </select>
             </label>

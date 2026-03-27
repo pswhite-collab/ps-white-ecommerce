@@ -113,32 +113,32 @@ export default function BookDetailPage() {
         {book.coverImage?.url ? <meta property="og:image" content={book.coverImage.url} /> : null}
         <script type="application/ld+json">
           {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": ["Book", "Product"],
-            "name": book.title,
-            "author": {
-              "@type": "Person",
-              "name": book.author || "PS White"
+            '@context': 'https://schema.org',
+            '@type': ['Book', 'Product'],
+            name: book.title,
+            author: {
+              '@type': 'Person',
+              name: book.author || 'PS White',
             },
-            "description": book.description,
-            "isbn": book.formats?.physical?.isbn || undefined,
-            "offers": {
-              "@type": "Offer",
-              "price": selectedPrice,
-              "priceCurrency": "USD",
-              "availability": physicalOutOfStock ? "https://schema.org/OutOfStock" : "https://schema.org/InStock"
-            }
+            description: book.description,
+            isbn: book.formats?.physical?.isbn || undefined,
+            offers: {
+              '@type': 'Offer',
+              price: selectedPrice,
+              priceCurrency: 'GBP',
+              availability: physicalOutOfStock ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
+            },
           })}
         </script>
         <script type="application/ld+json">
           {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "BreadcrumbList",
-            "itemListElement": [
-              { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.ps-white.com/" },
-              { "@type": "ListItem", "position": 2, "name": "Books", "item": "https://www.ps-white.com/books" },
-              { "@type": "ListItem", "position": 3, "name": book.title, "item": `https://www.ps-white.com/book/${book._id}` }
-            ]
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.ps-white.com/' },
+              { '@type': 'ListItem', position: 2, name: 'Books', item: 'https://www.ps-white.com/books' },
+              { '@type': 'ListItem', position: 3, name: book.title, item: `https://www.ps-white.com/book/${book._id}` },
+            ],
           })}
         </script>
       </Helmet>
@@ -156,9 +156,11 @@ export default function BookDetailPage() {
           <p className="mt-2 text-lg text-charcoal/70">{book.author}</p>
           <p className="mt-2 text-sm text-charcoal/70">Rating: {book.averageRating ? book.averageRating.toFixed(1) : 'New'}</p>
           <p className="mt-4 font-semibold leading-relaxed text-charcoal">
-            {book.title} ({book.formats?.physical?.publicationDate ? new Date(book.formats.physical.publicationDate).getFullYear() : '2024'}) by {book.author}. 
-            Language: {book.formats?.physical?.language || 'English'}. 
-            Pages: {book.formats?.physical?.pages || book.formats?.ebook?.pageCount || '320'}. 
+            {book.title} ({book.formats?.physical?.publicationDate ? new Date(book.formats.physical.publicationDate).getFullYear() : '2024'}) by {book.author}.
+            {' '}
+            Language: {book.formats?.physical?.language || 'English'}.
+            {' '}
+            Pages: {book.formats?.physical?.pages || book.formats?.ebook?.pageCount || '320'}.
             {book.formats?.physical?.isbn ? ` ISBN: ${book.formats.physical.isbn}.` : ''}
           </p>
           <p className="mt-2 text-charcoal/75">{book.description || 'Description coming soon.'}</p>
@@ -186,7 +188,7 @@ export default function BookDetailPage() {
                     <p className="text-sm text-taupe">Instant digital delivery</p>
                   </div>
                   <p className="text-lg font-bold text-mocha">
-                    $
+                    &pound;
                     {Number(book.formats.ebook.price || 0).toFixed(2)}
                   </p>
                 </div>
@@ -213,7 +215,7 @@ export default function BookDetailPage() {
                     <p className="text-sm text-taupe">
                       {book.formats.physical.binding || 'Paperback'}
                       {' '}
-                      · Ships in 3-7 days
+                      &middot; Ships in 3-7 days
                     </p>
                     {book.formats.physical.stock > 0 ? (
                       <p className="mt-1 text-xs text-success">
@@ -227,7 +229,7 @@ export default function BookDetailPage() {
                     )}
                   </div>
                   <p className="text-lg font-bold text-mocha">
-                    $
+                    &pound;
                     {Number(book.formats.physical.price || 0).toFixed(2)}
                   </p>
                 </div>
@@ -254,7 +256,7 @@ export default function BookDetailPage() {
                     <p className="text-sm text-taupe">Instant digital delivery</p>
                   </div>
                   <p className="text-lg font-bold text-mocha">
-                    $
+                    &pound;
                     {Number(book.formats.audiobook.price || 0).toFixed(2)}
                   </p>
                 </div>
@@ -263,14 +265,14 @@ export default function BookDetailPage() {
           </div>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
-            <span className="text-2xl font-semibold text-mocha">${selectedPrice.toFixed(2)}</span>
+            <span className="text-2xl font-semibold text-mocha">{`\u00A3${selectedPrice.toFixed(2)}`}</span>
             <Button
               disabled={!selectedFormat || physicalOutOfStock}
               onClick={() => addToCart(book, selectedFormat, 1)}
             >
               {physicalOutOfStock
                 ? 'Out of Stock'
-                : `Add to Cart${selectedPrice ? ` - $${selectedPrice.toFixed(2)}` : ''}`}
+                : `Add to Cart${selectedPrice ? ` - \u00A3${selectedPrice.toFixed(2)}` : ''}`}
             </Button>
             <Button variant="outline" onClick={openPreview}>Preview Chapter</Button>
             <Link to={`/reader/${book._id}`}>
@@ -300,9 +302,11 @@ export default function BookDetailPage() {
         <Card>
           <h3 className="font-display text-3xl text-mocha">Description</h3>
           <p className="mt-3 font-semibold text-charcoal/90">
-            {book.title} ({book.formats?.physical?.publicationDate ? new Date(book.formats.physical.publicationDate).getFullYear() : '2024'}) by {book.author}. 
-            Language: {book.formats?.physical?.language || 'English'}. 
-            Pages: {book.formats?.physical?.pages || book.formats?.ebook?.pageCount || '320'}. 
+            {book.title} ({book.formats?.physical?.publicationDate ? new Date(book.formats.physical.publicationDate).getFullYear() : '2024'}) by {book.author}.
+            {' '}
+            Language: {book.formats?.physical?.language || 'English'}.
+            {' '}
+            Pages: {book.formats?.physical?.pages || book.formats?.ebook?.pageCount || '320'}.
             {book.formats?.physical?.isbn ? ` ISBN: ${book.formats.physical.isbn}.` : ''}
           </p>
           <p className="mt-3 text-charcoal/75">{book.description || 'No description available.'}</p>

@@ -91,7 +91,7 @@ export default function ManageBooks() {
                         .map(([key]) => key)
                         .join(', ') || 'None'}
                     </td>
-                    <td className="px-3 py-2">${book.formats?.ebook?.price?.toFixed?.(2) || '0.00'}</td>
+                    <td className="px-3 py-2">{`\u00A3${book.formats?.ebook?.price?.toFixed?.(2) || '0.00'}`}</td>
                     <td className="px-3 py-2">{book.totalSales || 0}</td>
                     <td className="px-3 py-2">{book.active ? 'Active' : 'Archived'}</td>
                     <td className="px-3 py-2">

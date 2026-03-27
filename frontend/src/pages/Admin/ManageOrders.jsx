@@ -217,7 +217,7 @@ export default function ManageOrders() {
                         : order.guestEmail || 'Guest'}
                     </td>
                     <td className="px-3 py-2">{new Date(order.createdAt).toLocaleDateString()}</td>
-                    <td className="px-3 py-2">${Number(order.total || 0).toFixed(2)}</td>
+                    <td className="px-3 py-2">{`\u00A3${Number(order.total || 0).toFixed(2)}`}</td>
                     <td className="px-3 py-2">
                       {order.hasPhysicalItems ? (
                         <div className="min-w-[220px] space-y-1">

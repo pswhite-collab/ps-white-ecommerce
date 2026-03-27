@@ -81,7 +81,7 @@ export default function Checkout() {
       billingAddress: hasPhysicalItems ? { ...shippingAddress, sameAsShipping: true } : undefined,
       paymentMethod,
       guestEmail: user ? undefined : email,
-      currency: isRazorpayMethod(paymentMethod) ? 'INR' : 'USD',
+      currency: isRazorpayMethod(paymentMethod) ? 'INR' : 'GBP',
     });
 
     setOrder(created);
@@ -143,8 +143,6 @@ export default function Checkout() {
     window.location.assign(session.url);
   };
 
-
-
   const onPayNow = async () => {
     setLoading(true);
     setError('');
@@ -155,10 +153,9 @@ export default function Checkout() {
       if (paymentMethod === 'stripe') {
         await handleStripePayment(createdOrder);
         return;
-      } else {
-        await handleRazorpayPayment(createdOrder);
       }
 
+      await handleRazorpayPayment(createdOrder);
       clearCart();
       navigate(`/order-success/${createdOrder._id}`);
     } catch (err) {
@@ -243,7 +240,7 @@ export default function Checkout() {
                     </p>
                   </div>
                   <span className="text-sm font-semibold text-mocha">
-                    $
+                    &pound;
                     {(item.price * item.quantity).toFixed(2)}
                   </span>
                 </div>
@@ -299,7 +296,6 @@ export default function Checkout() {
                 </label>
               </div>
 
-
               {error ? <p className="text-sm text-error">{error}</p> : null}
 
               <div className="flex gap-2">
@@ -311,7 +307,7 @@ export default function Checkout() {
                   Back
                 </Button>
                 <Button disabled={loading} onClick={onPayNow} className="flex-1">
-                  {loading ? 'Processing...' : `Pay $${total.toFixed(2)}`}
+                  {loading ? 'Processing...' : `Pay \u00A3${total.toFixed(2)}`}
                 </Button>
               </div>
             </div>
@@ -321,13 +317,13 @@ export default function Checkout() {
         <aside className="rounded-card border border-taupe/30 bg-milk p-5 shadow-soft lg:sticky lg:top-4">
           <h3 className="font-display text-3xl text-mocha">Order Summary</h3>
           <div className="mt-4 space-y-2 text-sm">
-            <div className="flex justify-between text-charcoal/80"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
+            <div className="flex justify-between text-charcoal/80"><span>Subtotal</span><span>{`\u00A3${subtotal.toFixed(2)}`}</span></div>
             {hasPhysicalItems ? (
-              <div className="flex justify-between text-charcoal/80"><span>Shipping</span><span>${shipping.toFixed(2)}</span></div>
+              <div className="flex justify-between text-charcoal/80"><span>Shipping</span><span>{`\u00A3${shipping.toFixed(2)}`}</span></div>
             ) : null}
-            <div className="flex justify-between text-charcoal/80"><span>Tax</span><span>${tax.toFixed(2)}</span></div>
+            <div className="flex justify-between text-charcoal/80"><span>Tax</span><span>{`\u00A3${tax.toFixed(2)}`}</span></div>
             <div className="border-t border-taupe/40 pt-2 text-base font-semibold text-mocha">
-              <div className="flex justify-between"><span>Total</span><span>${total.toFixed(2)}</span></div>
+              <div className="flex justify-between"><span>Total</span><span>{`\u00A3${total.toFixed(2)}`}</span></div>
             </div>
           </div>
 

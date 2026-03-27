@@ -17,13 +17,13 @@ export default function CartSummary({
       <h3 className="font-display text-3xl text-mocha">Summary</h3>
 
       <div className="mt-4 space-y-2 text-sm text-charcoal/80">
-        <div className="flex justify-between"><span>Subtotal ({itemCount} items)</span><span>${subtotal.toFixed(2)}</span></div>
+        <div className="flex justify-between"><span>Subtotal ({itemCount} items)</span><span>{`\u00A3${subtotal.toFixed(2)}`}</span></div>
         {hasPhysicalItems ? (
-          <div className="flex justify-between"><span>Shipping</span><span>${shipping.toFixed(2)}</span></div>
+          <div className="flex justify-between"><span>Shipping</span><span>{`\u00A3${shipping.toFixed(2)}`}</span></div>
         ) : null}
-        <div className="flex justify-between"><span>Tax</span><span>${tax.toFixed(2)}</span></div>
+        <div className="flex justify-between"><span>Tax</span><span>{`\u00A3${tax.toFixed(2)}`}</span></div>
         <div className="border-t border-taupe/40 pt-2 text-base font-semibold text-mocha">
-          <div className="flex justify-between"><span>Total</span><span>${total.toFixed(2)}</span></div>
+          <div className="flex justify-between"><span>Total</span><span>{`\u00A3${total.toFixed(2)}`}</span></div>
         </div>
       </div>
 

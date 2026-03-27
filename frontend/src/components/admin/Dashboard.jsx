@@ -1,6 +1,6 @@
 export default function Dashboard({ stats = {} }) {
   const cards = [
-    { label: 'Total Revenue', value: `$${Number(stats.totalRevenue || 0).toFixed(2)}` },
+    { label: 'Total Revenue', value: `\u00A3${Number(stats.totalRevenue || 0).toFixed(2)}` },
     { label: 'Total Orders', value: stats.totalOrders || 0 },
     { label: 'Total Customers', value: stats.totalCustomers || 0 },
     { label: 'Books Sold', value: stats.totalBooks || 0 },

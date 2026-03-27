@@ -23,16 +23,20 @@ export const emailTemplates = {
 
 export const sendEmail = async ({ to, subject, html }) => {
   if (!resend) {
-    console.warn('RESEND_API_KEY is missing. Email not sent.');
+    console.warn('[Email] RESEND_API_KEY is missing — email skipped. Add RESEND_API_KEY to Render environment variables.');
     return null;
   }
 
-  return resend.emails.send({
-    from: process.env.EMAIL_FROM,
-    to,
-    subject,
-    html,
-  });
+  const from = process.env.EMAIL_FROM || 'PS White Books <noreply@pswhite.com>';
+
+  try {
+    const result = await resend.emails.send({ from, to, subject, html });
+    console.log('Email sent:', result);
+    return result;
+  } catch (err) {
+    console.error('Email error:', err);
+    throw err;
+  }
 };
 
 export default resend;

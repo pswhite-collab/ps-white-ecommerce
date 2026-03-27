@@ -15,7 +15,7 @@ export default function CartItem({ item, onUpdate, onRemove }) {
         <h3 className="font-display text-2xl text-mocha">{item.title}</h3>
         <p className="text-sm text-charcoal/70">{item.author}</p>
         <p className="mt-1 text-sm text-charcoal/60">Format: {item.format}</p>
-        <p className="mt-2 text-lg font-semibold text-mocha">${item.price.toFixed(2)}</p>
+        <p className="mt-2 text-lg font-semibold text-mocha">{`\u00A3${item.price.toFixed(2)}`}</p>
       </div>
 
       <div className="flex flex-col items-end justify-between gap-3">

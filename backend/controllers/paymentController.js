@@ -142,7 +142,7 @@ export const createStripeCheckoutSession = async (req, res, next) => {
         {
           quantity: 1,
           price_data: {
-            currency: (order.currency || 'usd').toLowerCase(),
+            currency: (order.currency || 'gbp').toLowerCase(),
             unit_amount: Math.round(order.total * 100),
             product_data: {
               name: `Order ${order.orderNumber}`,
@@ -230,7 +230,7 @@ export const createStripeIntent = async (req, res, next) => {
     try {
       paymentIntent = await stripeClient.paymentIntents.create({
         amount,
-        currency: (order.currency || 'usd').toLowerCase(),
+        currency: (order.currency || 'gbp').toLowerCase(),
         metadata: {
           orderId: String(order._id),
         },

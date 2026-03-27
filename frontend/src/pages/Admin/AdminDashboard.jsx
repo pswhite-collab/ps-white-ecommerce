@@ -45,7 +45,7 @@ export default function AdminDashboard() {
                   {(data.recentOrders || []).map((order) => (
                     <div key={order._id} className="flex items-center justify-between rounded-card bg-oat/40 px-3 py-2 text-sm">
                       <span>{order.orderNumber}</span>
-                      <span>${order.total?.toFixed(2)}</span>
+                      <span>{`\u00A3${order.total?.toFixed(2)}`}</span>
                     </div>
                   ))}
                 </div>

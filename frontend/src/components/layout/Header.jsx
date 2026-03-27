@@ -28,39 +28,56 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-taupe/30 bg-[rgba(251,247,244,0.9)] backdrop-blur-xl">
-      <div className="mx-auto flex h-[72px] w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link to="/" className="font-display text-3xl font-semibold tracking-wide text-charcoal no-underline">
+      <div className="mx-auto flex h-[72px] w-full max-w-7xl items-center justify-between px-4 relative sm:px-6 lg:px-8">
+
+        {/* LEFT SLOT — Nav links */}
+        <div className="hidden md:block">
+          <div className="flex items-center gap-6">
+            {navItems.map((item) =>
+              item.isHashLink ? (
+                <Link
+                  key={item.label}
+                  to={item.to}
+                  className="text-xs font-medium uppercase tracking-[0.16em] text-mocha no-underline transition-colors duration-smooth ease-smooth hover:text-charcoal"
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <NavLink
+                  key={item.label}
+                  to={item.to}
+                  className={({ isActive }) =>
+                    [
+                      'text-xs font-medium uppercase tracking-[0.16em] no-underline transition-colors duration-smooth ease-smooth',
+                      isActive ? 'text-charcoal' : 'text-mocha hover:text-charcoal',
+                    ].join(' ')
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              )
+            )}
+          </div>
+        </div>
+
+        {/* CENTER SLOT — Brand name (absolutely centered) */}
+        <div className="absolute left-1/2 -translate-x-1/2">
+          <Link
+            to="/"
+            className="hidden font-display text-5xl font-semibold tracking-wide text-charcoal no-underline md:block"
+          >
+            PS <span className="text-mocha">White</span>
+          </Link>
+        </div>
+
+        {/* Mobile brand (visible only on mobile, left-aligned) */}
+        <Link to="/" className="font-display text-3xl font-semibold tracking-wide text-charcoal no-underline md:hidden">
           PS <span className="text-mocha">White</span>
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
-          {navItems.map((item) =>
-            item.isHashLink ? (
-              <Link
-                key={item.label}
-                to={item.to}
-                className="text-xs font-medium uppercase tracking-[0.16em] text-mocha no-underline transition-colors duration-smooth ease-smooth hover:text-charcoal"
-              >
-                {item.label}
-              </Link>
-            ) : (
-              <NavLink
-                key={item.label}
-                to={item.to}
-                className={({ isActive }) =>
-                  [
-                    'text-xs font-medium uppercase tracking-[0.16em] no-underline transition-colors duration-smooth ease-smooth',
-                    isActive ? 'text-charcoal' : 'text-mocha hover:text-charcoal',
-                  ].join(' ')
-                }
-              >
-                {item.label}
-              </NavLink>
-            )
-          )}
-        </nav>
-
-        <div className="hidden items-center gap-3 md:flex">
+        {/* RIGHT SLOT — Cart + Auth */}
+        <div className="hidden md:block">
+          <div className="flex items-center gap-3">
           <Link
             to="/cart"
             className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-taupe/60 text-[10px] font-semibold uppercase tracking-[0.14em] text-charcoal no-underline transition-colors duration-smooth ease-smooth hover:bg-oat"
@@ -72,60 +89,61 @@ export default function Header() {
             </span>
           </Link>
 
-          {!isAuthenticated ? (
-            <>
-              <Link to="/login" className="no-underline">
-                <Button size="sm" variant="outline">Login</Button>
-              </Link>
-              <Link to="/register" className="no-underline">
-                <Button size="sm">Sign Up</Button>
-              </Link>
-            </>
-          ) : (
-            <div className="relative">
-              <button
-                type="button"
-                className="inline-flex items-center gap-2 rounded-pill border border-taupe/60 px-4 py-2 text-xs font-medium uppercase tracking-[0.1em] text-charcoal transition-colors duration-smooth ease-smooth hover:bg-oat"
-                onClick={() => setShowUserMenu((prev) => !prev)}
-              >
-                <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-mocha text-[11px] font-semibold text-milk">
-                  {user?.firstName?.[0] || user?.email?.[0] || 'U'}
-                </span>
-                Account
-              </button>
+            {!isAuthenticated ? (
+              <>
+                <Link to="/login" className="no-underline">
+                  <Button size="sm" variant="outline">Login</Button>
+                </Link>
+                <Link to="/register" className="no-underline">
+                  <Button size="sm">Sign Up</Button>
+                </Link>
+              </>
+            ) : (
+              <div className="relative">
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-2 rounded-pill border border-taupe/60 px-4 py-2 text-xs font-medium uppercase tracking-[0.1em] text-charcoal transition-colors duration-smooth ease-smooth hover:bg-oat"
+                  onClick={() => setShowUserMenu((prev) => !prev)}
+                >
+                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-mocha text-[11px] font-semibold text-milk">
+                    {user?.firstName?.[0] || user?.email?.[0] || 'U'}
+                  </span>
+                  Account
+                </button>
 
-              {showUserMenu ? (
-                <div className="absolute right-0 z-20 mt-2 w-48 rounded-card border border-taupe/40 bg-milk p-2 shadow-soft">
-                  <Link
-                    to="/library"
-                    className="block rounded-card px-3 py-2 text-sm text-charcoal no-underline transition-colors hover:bg-oat"
-                    onClick={closeUserMenuAndNavigate}
-                  >
-                    My Library
-                  </Link>
-                  {['admin', 'super_admin'].includes(user?.role) ? (
+                {showUserMenu ? (
+                  <div className="absolute right-0 z-20 mt-2 w-48 rounded-card border border-taupe/40 bg-milk p-2 shadow-soft">
                     <Link
-                      to="/admin/dashboard"
+                      to="/library"
                       className="block rounded-card px-3 py-2 text-sm text-charcoal no-underline transition-colors hover:bg-oat"
                       onClick={closeUserMenuAndNavigate}
                     >
-                      Admin Panel
+                      My Library
                     </Link>
-                  ) : null}
-                  <button
-                    type="button"
-                    className="mt-1 w-full rounded-card px-3 py-2 text-left text-sm text-charcoal transition-colors hover:bg-oat"
-                    onClick={async () => {
-                      closeUserMenuAndNavigate();
-                      await logout();
-                    }}
-                  >
-                    Logout
-                  </button>
-                </div>
-              ) : null}
-            </div>
-          )}
+                    {['admin', 'super_admin'].includes(user?.role) ? (
+                      <Link
+                        to="/admin/dashboard"
+                        className="block rounded-card px-3 py-2 text-sm text-charcoal no-underline transition-colors hover:bg-oat"
+                        onClick={closeUserMenuAndNavigate}
+                      >
+                        Admin Panel
+                      </Link>
+                    ) : null}
+                    <button
+                      type="button"
+                      className="mt-1 w-full rounded-card px-3 py-2 text-left text-sm text-charcoal transition-colors hover:bg-oat"
+                      onClick={async () => {
+                        closeUserMenuAndNavigate();
+                        await logout();
+                      }}
+                    >
+                      Logout
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+            )}
+          </div>
         </div>
 
         <button
@@ -207,4 +225,3 @@ export default function Header() {
     </header>
   );
 }
-

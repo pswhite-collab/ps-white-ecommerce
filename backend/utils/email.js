@@ -1,27 +1,27 @@
 import { emailTemplates, sendEmail as sendRawEmail } from '../config/resend.js';
 
 export const sendEmail = async ({ to, subject, html }) => {
-  return sendRawEmail({ to, subject, html });
+  return await sendRawEmail({ to, subject, html });
 };
 
 export const sendWelcomeEmail = async ({ to, firstName }) => {
   const template = emailTemplates.welcome({ firstName });
-  return sendRawEmail({ to, ...template });
+  return await sendRawEmail({ to, ...template });
 };
 
 export const sendVerificationEmail = async ({ to, firstName, verifyUrl }) => {
   const template = emailTemplates.verification({ firstName, verifyUrl });
-  return sendRawEmail({ to, ...template });
+  return await sendRawEmail({ to, ...template });
 };
 
 export const sendPasswordResetEmail = async ({ to, firstName, resetUrl }) => {
   const template = emailTemplates.passwordReset({ firstName, resetUrl });
-  return sendRawEmail({ to, ...template });
+  return await sendRawEmail({ to, ...template });
 };
 
 export const sendOrderConfirmationEmail = async ({ to, orderNumber }) => {
   const template = emailTemplates.orderConfirmation({ orderNumber });
-  return sendRawEmail({ to, ...template });
+  return await sendRawEmail({ to, ...template });
 };
 
 export const sendShippingNotificationEmail = async ({ to, customerName, order }) => {
@@ -58,7 +58,7 @@ export const sendShippingNotificationEmail = async ({ to, customerName, order })
     </div>
   `;
 
-  return sendRawEmail({ to, subject, html });
+  return await sendRawEmail({ to, subject, html });
 };
 
 export default {
