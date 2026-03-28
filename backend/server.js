@@ -41,10 +41,37 @@ const rawOrigins = [
   process.env.FRONTEND_URL,
 ].filter(Boolean).join(',') || 'http://localhost:5173';
 
-const allowedOrigins = rawOrigins
-  .split(',')
-  .map((origin) => origin.trim())
-  .filter(Boolean);
+const expandOriginVariants = (origin) => {
+  try {
+    const url = new URL(origin);
+    const normalizedOrigin = `${url.protocol}//${url.host}`;
+    const variants = new Set([normalizedOrigin]);
+    const isLocalOrigin = ['localhost', '127.0.0.1', '0.0.0.0'].includes(url.hostname);
+
+    if (!isLocalOrigin) {
+      if (url.hostname.startsWith('www.')) {
+        const nonWwwHost = url.host.replace(/^www\./, '');
+        variants.add(`${url.protocol}//${nonWwwHost}`);
+      } else {
+        variants.add(`${url.protocol}//www.${url.host}`);
+      }
+    }
+
+    return Array.from(variants);
+  } catch (_error) {
+    return [origin.trim()];
+  }
+};
+
+const allowedOrigins = Array.from(
+  new Set(
+    rawOrigins
+      .split(',')
+      .map((origin) => origin.trim())
+      .filter(Boolean)
+      .flatMap(expandOriginVariants)
+  )
+);
 
 const helmetConfig = isProduction
   ? {
