@@ -125,9 +125,21 @@ export default function Home() {
       setLoadingBooks(true);
       try {
         const featured = await bookService.getFeaturedBooks();
-        setBooks(featured);
+
+        if (featured.length > 0) {
+          setBooks(featured);
+          return;
+        }
+
+        const fallbackCatalog = await bookService.getBooks({ page: 1, limit: 8 });
+        setBooks(fallbackCatalog.books || []);
       } catch (_error) {
-        setBooks([]);
+        try {
+          const fallbackCatalog = await bookService.getBooks({ page: 1, limit: 8 });
+          setBooks(fallbackCatalog.books || []);
+        } catch (_fallbackError) {
+          setBooks([]);
+        }
       } finally {
         setLoadingBooks(false);
       }
