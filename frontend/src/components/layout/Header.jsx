@@ -61,7 +61,7 @@ export default function Header() {
         </div>
 
         {/* CENTER SLOT — Brand name (absolutely centered) */}
-        <div className="absolute left-4 z-20 flex items-center gap-3 md:hidden">
+        <div className="absolute right-4 z-20 flex items-center gap-3 md:hidden">
           <NavLink
             to="/books"
             className={({ isActive }) =>
@@ -171,7 +171,7 @@ export default function Header() {
 
         <button
           type="button"
-          className="absolute right-4 z-20 inline-flex h-10 w-10 items-center justify-center rounded-full border border-taupe/60 text-charcoal md:hidden"
+          className="absolute left-4 z-20 inline-flex h-10 w-10 items-center justify-center rounded-full border border-taupe/60 text-charcoal md:hidden"
           onClick={() => setIsMenuOpen((prev) => !prev)}
           aria-label="Toggle mobile menu"
         >
