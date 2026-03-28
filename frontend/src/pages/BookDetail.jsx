@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import Button from '../components/common/Button';
 import Card from '../components/common/Card';
 import Modal from '../components/common/Modal';
 import ReviewsSection from '../components/books/ReviewsSection';
 import ReviewForm from '../components/books/ReviewForm';
+import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import bookService from '../services/bookService';
 import readerService from '../services/readerService';
@@ -15,6 +16,9 @@ const tabs = ['Description', 'Reviews', 'About Author'];
 export default function BookDetailPage() {
   const { id } = useParams();
   const { addToCart } = useCart();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -101,6 +105,15 @@ export default function BookDetailPage() {
     } finally {
       setPreviewLoading(false);
     }
+  };
+
+  const handleAddToCart = () => {
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: location.pathname } });
+      return;
+    }
+
+    addToCart(book, selectedFormat, 1);
   };
 
   return (
@@ -268,7 +281,7 @@ export default function BookDetailPage() {
             <span className="text-2xl font-semibold text-mocha">{`\u00A3${selectedPrice.toFixed(2)}`}</span>
             <Button
               disabled={!selectedFormat || physicalOutOfStock}
-              onClick={() => addToCart(book, selectedFormat, 1)}
+              onClick={handleAddToCart}
             >
               {physicalOutOfStock
                 ? 'Out of Stock'

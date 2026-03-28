@@ -1,6 +1,7 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Button from '../common/Button';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 
 const formatStyles = {
   ebook: 'bg-oat text-mocha',
@@ -21,6 +22,9 @@ const getAvailableFormats = (book) =>
 
 export default function BookCard({ book }) {
   const { addToCart } = useCart();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const availableFormats = getAvailableFormats(book);
   const defaultFormat =
     availableFormats.find(
@@ -38,6 +42,15 @@ export default function BookCard({ book }) {
     book.formats?.physical?.price ||
     book.formats?.audiobook?.price ||
     0;
+
+  const handleAddToCart = () => {
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: location.pathname } });
+      return;
+    }
+
+    addToCart(book, defaultFormat, 1);
+  };
 
   return (
     <article className="group relative overflow-hidden rounded-card border border-oat bg-milk shadow-soft transition-all duration-smooth ease-smooth hover:-translate-y-2 hover:shadow-strong">
@@ -119,7 +132,7 @@ export default function BookCard({ book }) {
             size="sm"
             className="flex-1"
             disabled={isDefaultOutOfStock}
-            onClick={() => addToCart(book, defaultFormat, 1)}
+            onClick={handleAddToCart}
           >
             {isDefaultOutOfStock ? 'Out of Stock' : 'Add to Cart'}
           </Button>

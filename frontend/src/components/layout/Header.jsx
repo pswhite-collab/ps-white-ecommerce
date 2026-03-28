@@ -182,7 +182,9 @@ export default function Header() {
       {isMenuOpen ? (
         <div className="border-t border-taupe/30 bg-milk px-4 py-4 shadow-soft md:hidden">
           <div className="flex flex-col gap-3">
-            {navItems.map((item) =>
+            {navItems
+              .filter((item) => item.label !== 'Books')
+              .map((item) =>
               item.isHashLink ? (
                 <Link
                   key={item.label}
@@ -208,9 +210,6 @@ export default function Header() {
                 </NavLink>
               )
             )}
-            <Link to="/cart" className="rounded-card px-3 py-2 text-sm text-charcoal no-underline hover:bg-oat">
-              Cart ({itemCount})
-            </Link>
             {isAuthenticated ? (
               <>
                 <Link
