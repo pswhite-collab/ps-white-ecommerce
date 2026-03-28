@@ -61,19 +61,42 @@ export default function Header() {
         </div>
 
         {/* CENTER SLOT — Brand name (absolutely centered) */}
+        <div className="flex items-center gap-3 md:hidden">
+          <NavLink
+            to="/books"
+            className={({ isActive }) =>
+              [
+                'text-xs font-medium uppercase tracking-[0.14em] no-underline transition-colors duration-smooth ease-smooth',
+                isActive ? 'text-charcoal' : 'text-mocha hover:text-charcoal',
+              ].join(' ')
+            }
+          >
+            Books
+          </NavLink>
+          <Link
+            to="/cart"
+            className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-taupe/60 text-charcoal no-underline transition-colors duration-smooth ease-smooth hover:bg-oat"
+            aria-label="Open cart"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75h1.386c.51 0 .955.343 1.087.835l1.43 5.362a1.5 1.5 0 001.45 1.115h9.794a1.5 1.5 0 001.45-1.115l1.43-5.362a1.125 1.125 0 011.087-.835h1.386M8.25 17.25a1.5 1.5 0 103 0 1.5 1.5 0 00-3 0zm6 0a1.5 1.5 0 103 0 1.5 1.5 0 00-3 0zM6.75 9h10.5" />
+            </svg>
+            {itemCount > 0 ? (
+              <span className="absolute -right-1 -top-1 inline-flex min-h-4 min-w-4 items-center justify-center rounded-full bg-mocha px-0.5 text-[9px] font-semibold text-milk">
+                {itemCount}
+              </span>
+            ) : null}
+          </Link>
+        </div>
+
         <div className="absolute left-1/2 -translate-x-1/2">
           <Link
             to="/"
-            className="hidden font-display text-5xl font-semibold tracking-wide text-charcoal no-underline md:block"
+            className="font-display text-3xl font-semibold tracking-wide text-charcoal no-underline md:text-5xl"
           >
             PS <span className="text-mocha">White</span>
           </Link>
         </div>
-
-        {/* Mobile brand (visible only on mobile, left-aligned) */}
-        <Link to="/" className="font-display text-3xl font-semibold tracking-wide text-charcoal no-underline md:hidden">
-          PS <span className="text-mocha">White</span>
-        </Link>
 
         {/* RIGHT SLOT — Cart + Auth */}
         <div className="hidden md:block">
