@@ -61,7 +61,7 @@ export default function Header() {
         </div>
 
         {/* CENTER SLOT — Brand name (absolutely centered) */}
-        <div className="flex items-center gap-3 md:hidden">
+        <div className="absolute left-4 z-20 flex items-center gap-3 md:hidden">
           <NavLink
             to="/books"
             className={({ isActive }) =>
@@ -89,10 +89,10 @@ export default function Header() {
           </Link>
         </div>
 
-        <div className="absolute left-1/2 -translate-x-1/2">
+        <div className="pointer-events-none absolute left-1/2 z-10 -translate-x-1/2">
           <Link
             to="/"
-            className="font-display text-3xl font-semibold tracking-wide text-charcoal no-underline md:text-5xl"
+            className="pointer-events-auto font-display text-3xl font-semibold tracking-wide text-charcoal no-underline md:text-5xl"
           >
             PS <span className="text-mocha">White</span>
           </Link>
@@ -171,7 +171,7 @@ export default function Header() {
 
         <button
           type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-taupe/60 text-charcoal md:hidden"
+          className="relative z-20 inline-flex h-10 w-10 items-center justify-center rounded-full border border-taupe/60 text-charcoal md:hidden"
           onClick={() => setIsMenuOpen((prev) => !prev)}
           aria-label="Toggle mobile menu"
         >
