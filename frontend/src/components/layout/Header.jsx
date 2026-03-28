@@ -171,7 +171,7 @@ export default function Header() {
 
         <button
           type="button"
-          className="relative z-20 inline-flex h-10 w-10 items-center justify-center rounded-full border border-taupe/60 text-charcoal md:hidden"
+          className="absolute right-4 z-20 inline-flex h-10 w-10 items-center justify-center rounded-full border border-taupe/60 text-charcoal md:hidden"
           onClick={() => setIsMenuOpen((prev) => !prev)}
           aria-label="Toggle mobile menu"
         >
