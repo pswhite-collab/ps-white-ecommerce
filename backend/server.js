@@ -35,43 +35,14 @@ const PORT = process.env.PORT || 5000;
 const isProduction = process.env.NODE_ENV === 'production';
 const frontendDistPath = path.resolve(__dirname, '../frontend/dist');
 
-// Read both CLIENT_URL and FRONTEND_URL so renaming the env var on Render doesn't break CORS
-const rawOrigins = [
+const allowedOrigins = [
   process.env.CLIENT_URL,
+  process.env.CLIENT_URL_WWW,
   process.env.FRONTEND_URL,
-].filter(Boolean).join(',') || 'http://localhost:5173';
-
-const expandOriginVariants = (origin) => {
-  try {
-    const url = new URL(origin);
-    const normalizedOrigin = `${url.protocol}//${url.host}`;
-    const variants = new Set([normalizedOrigin]);
-    const isLocalOrigin = ['localhost', '127.0.0.1', '0.0.0.0'].includes(url.hostname);
-
-    if (!isLocalOrigin) {
-      if (url.hostname.startsWith('www.')) {
-        const nonWwwHost = url.host.replace(/^www\./, '');
-        variants.add(`${url.protocol}//${nonWwwHost}`);
-      } else {
-        variants.add(`${url.protocol}//www.${url.host}`);
-      }
-    }
-
-    return Array.from(variants);
-  } catch (_error) {
-    return [origin.trim()];
-  }
-};
-
-const allowedOrigins = Array.from(
-  new Set(
-    rawOrigins
-      .split(',')
-      .map((origin) => origin.trim())
-      .filter(Boolean)
-      .flatMap(expandOriginVariants)
-  )
-);
+  'https://ps-white-ecommerce-rose.vercel.app',
+  'https://ps-white.com',
+  'https://www.ps-white.com',
+].filter(Boolean);
 
 const helmetConfig = isProduction
   ? {
