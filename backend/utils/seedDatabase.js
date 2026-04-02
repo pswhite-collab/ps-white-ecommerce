@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+﻿import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import connectDB from '../config/db.js';
 import AdminWhitelist from '../models/AdminWhitelist.js';
@@ -26,10 +26,10 @@ const bookSeeds = [
       'Set in post-war Kerala, this novel follows a family learning to live with a loss they cannot name out loud. As old secrets surface, each character is forced to choose between comfort and truth. Rich in atmosphere and emotional depth, it is a story about memory, guilt, and redemption.',
     excerpt: loremExcerpt,
     coverImage: {
-      url: 'https://res.cloudinary.com/demo/image/upload/v1700000001/ps-white/covers/the-weight-of-silence.jpg',
+      url: 'https://assets.ps-white.com/image/upload/v1700000001/ps-white/covers/the-weight-of-silence.jpg',
       publicId: 'ps-white/covers/the-weight-of-silence',
       thumbnail:
-        'https://res.cloudinary.com/demo/image/upload/c_fill,w_480,h_640/v1700000001/ps-white/covers/the-weight-of-silence.jpg',
+        'https://assets.ps-white.com/image/upload/c_fill,w_480,h_640/v1700000001/ps-white/covers/the-weight-of-silence.jpg',
     },
     languages: ['English'],
     formats: {
@@ -38,12 +38,12 @@ const bookSeeds = [
         price: 14.99,
         files: {
           epub: {
-            url: 'https://res.cloudinary.com/demo/raw/upload/v1700000001/ps-white/ebooks/the-weight-of-silence.epub',
+            url: 'https://assets.ps-white.com/raw/upload/v1700000001/ps-white/ebooks/the-weight-of-silence.epub',
             publicId: 'ps-white/ebooks/the-weight-of-silence-epub',
             size: 2400000,
           },
           pdf: {
-            url: 'https://res.cloudinary.com/demo/raw/upload/v1700000001/ps-white/ebooks/the-weight-of-silence.pdf',
+            url: 'https://assets.ps-white.com/raw/upload/v1700000001/ps-white/ebooks/the-weight-of-silence.pdf',
             publicId: 'ps-white/ebooks/the-weight-of-silence-pdf',
             size: 6800000,
           },
@@ -61,7 +61,7 @@ const bookSeeds = [
         available: true,
         price: 19.99,
         file: {
-          url: 'https://res.cloudinary.com/demo/video/upload/v1700000001/ps-white/audio/the-weight-of-silence.mp3',
+          url: 'https://assets.ps-white.com/video/upload/v1700000001/ps-white/audio/the-weight-of-silence.mp3',
           publicId: 'ps-white/audio/the-weight-of-silence',
           size: 98000000,
           duration: 630,
@@ -79,10 +79,10 @@ const bookSeeds = [
       'A journalist receives an unsigned confession linked to a cold case that once divided her city. What begins as an assignment turns into a race against power, fear, and a clock that will not stop. Tense and layered, this thriller explores the price of uncovering the truth.',
     excerpt: loremExcerpt,
     coverImage: {
-      url: 'https://res.cloudinary.com/demo/image/upload/v1700000002/ps-white/covers/between-two-dawns.jpg',
+      url: 'https://assets.ps-white.com/image/upload/v1700000002/ps-white/covers/between-two-dawns.jpg',
       publicId: 'ps-white/covers/between-two-dawns',
       thumbnail:
-        'https://res.cloudinary.com/demo/image/upload/c_fill,w_480,h_640/v1700000002/ps-white/covers/between-two-dawns.jpg',
+        'https://assets.ps-white.com/image/upload/c_fill,w_480,h_640/v1700000002/ps-white/covers/between-two-dawns.jpg',
     },
     languages: ['English'],
     formats: {
@@ -107,10 +107,10 @@ const bookSeeds = [
       'Two strangers meet through letters that were never meant to be sent. Across cities and seasons, their words build a world where love feels possible again. Tender and intimate, this story celebrates vulnerability, hope, and emotional courage.',
     excerpt: loremExcerpt,
     coverImage: {
-      url: 'https://res.cloudinary.com/demo/image/upload/v1700000003/ps-white/covers/a-garden-of-echoes.jpg',
+      url: 'https://assets.ps-white.com/image/upload/v1700000003/ps-white/covers/a-garden-of-echoes.jpg',
       publicId: 'ps-white/covers/a-garden-of-echoes',
       thumbnail:
-        'https://res.cloudinary.com/demo/image/upload/c_fill,w_480,h_640/v1700000003/ps-white/covers/a-garden-of-echoes.jpg',
+        'https://assets.ps-white.com/image/upload/c_fill,w_480,h_640/v1700000003/ps-white/covers/a-garden-of-echoes.jpg',
     },
     languages: ['English'],
     formats: {
@@ -135,10 +135,10 @@ const bookSeeds = [
       'An intimate collection of poems about longing, healing, and the language we carry in silence. Each piece is crafted with gentle precision and emotional honesty. Perfect for readers who seek reflection and calm in the middle of noise.',
     excerpt: loremExcerpt,
     coverImage: {
-      url: 'https://res.cloudinary.com/demo/image/upload/v1700000004/ps-white/covers/letters-to-the-unsent.jpg',
+      url: 'https://assets.ps-white.com/image/upload/v1700000004/ps-white/covers/letters-to-the-unsent.jpg',
       publicId: 'ps-white/covers/letters-to-the-unsent',
       thumbnail:
-        'https://res.cloudinary.com/demo/image/upload/c_fill,w_480,h_640/v1700000004/ps-white/covers/letters-to-the-unsent.jpg',
+        'https://assets.ps-white.com/image/upload/c_fill,w_480,h_640/v1700000004/ps-white/covers/letters-to-the-unsent.jpg',
     },
     languages: ['English'],
     formats: {
@@ -163,10 +163,10 @@ const bookSeeds = [
       'In this personal memoir, PS White traces formative years through family, migration, and the monsoons that shaped every beginning and ending. Honest and observant, these essays explore identity, belonging, and reinvention with warmth.',
     excerpt: loremExcerpt,
     coverImage: {
-      url: 'https://res.cloudinary.com/demo/image/upload/v1700000005/ps-white/covers/the-monsoon-diaries.jpg',
+      url: 'https://assets.ps-white.com/image/upload/v1700000005/ps-white/covers/the-monsoon-diaries.jpg',
       publicId: 'ps-white/covers/the-monsoon-diaries',
       thumbnail:
-        'https://res.cloudinary.com/demo/image/upload/c_fill,w_480,h_640/v1700000005/ps-white/covers/the-monsoon-diaries.jpg',
+        'https://assets.ps-white.com/image/upload/c_fill,w_480,h_640/v1700000005/ps-white/covers/the-monsoon-diaries.jpg',
     },
     languages: ['English'],
     formats: {
@@ -191,10 +191,10 @@ const bookSeeds = [
       'A suspended detective is pulled into one final unofficial case that connects city politics to a string of disappearances. Fast-paced and cinematic, this novel captures Mumbai at night in all its danger and beauty.',
     excerpt: loremExcerpt,
     coverImage: {
-      url: 'https://res.cloudinary.com/demo/image/upload/v1700000006/ps-white/covers/midnight-in-mumbai.jpg',
+      url: 'https://assets.ps-white.com/image/upload/v1700000006/ps-white/covers/midnight-in-mumbai.jpg',
       publicId: 'ps-white/covers/midnight-in-mumbai',
       thumbnail:
-        'https://res.cloudinary.com/demo/image/upload/c_fill,w_480,h_640/v1700000006/ps-white/covers/midnight-in-mumbai.jpg',
+        'https://assets.ps-white.com/image/upload/c_fill,w_480,h_640/v1700000006/ps-white/covers/midnight-in-mumbai.jpg',
     },
     languages: ['English'],
     formats: {
@@ -219,10 +219,10 @@ const bookSeeds = [
       'Spanning three decades, this historical novel follows a young woman preserving her family legacy through letters, maps, and the stars. A sweeping narrative about lineage, duty, and the freedom to rewrite inherited stories.',
     excerpt: loremExcerpt,
     coverImage: {
-      url: 'https://res.cloudinary.com/demo/image/upload/v1700000007/ps-white/covers/the-stargazers-daughter.jpg',
+      url: 'https://assets.ps-white.com/image/upload/v1700000007/ps-white/covers/the-stargazers-daughter.jpg',
       publicId: 'ps-white/covers/the-stargazers-daughter',
       thumbnail:
-        'https://res.cloudinary.com/demo/image/upload/c_fill,w_480,h_640/v1700000007/ps-white/covers/the-stargazers-daughter.jpg',
+        'https://assets.ps-white.com/image/upload/c_fill,w_480,h_640/v1700000007/ps-white/covers/the-stargazers-daughter.jpg',
     },
     languages: ['English'],
     formats: {
@@ -247,10 +247,10 @@ const bookSeeds = [
       'After a decade abroad, a musician returns home to rebuild relationships and rediscover meaning. Through friendship, failure, and second chances, this contemporary novel asks what it really means to belong.',
     excerpt: loremExcerpt,
     coverImage: {
-      url: 'https://res.cloudinary.com/demo/image/upload/v1700000008/ps-white/covers/finding-home.jpg',
+      url: 'https://assets.ps-white.com/image/upload/v1700000008/ps-white/covers/finding-home.jpg',
       publicId: 'ps-white/covers/finding-home',
       thumbnail:
-        'https://res.cloudinary.com/demo/image/upload/c_fill,w_480,h_640/v1700000008/ps-white/covers/finding-home.jpg',
+        'https://assets.ps-white.com/image/upload/c_fill,w_480,h_640/v1700000008/ps-white/covers/finding-home.jpg',
     },
     languages: ['English'],
     formats: {
@@ -517,7 +517,7 @@ const seedBlogPosts = async () => {
       ...seed,
       author: DEFAULT_AUTHOR,
       slug,
-      featuredImage: `https://res.cloudinary.com/demo/image/upload/v1700000100/ps-white/blog/${slug}.jpg`,
+      featuredImage: `https://assets.ps-white.com/image/upload/v1700000100/ps-white/blog/${slug}.jpg`,
       published: true,
       publishDate: new Date(),
     });
@@ -588,3 +588,4 @@ runSeed()
   .finally(async () => {
     await mongoose.connection.close();
   });
+

@@ -63,7 +63,8 @@ const helmetConfig = isProduction
             "'self'",
             'data:',
             'blob:',
-            'https://res.cloudinary.com',
+            ...(process.env.ASSET_CDN_ORIGIN ? [process.env.ASSET_CDN_ORIGIN] : []),
+            'https://*.r2.dev',
             'https://lh3.googleusercontent.com',
           ],
           connectSrc: [

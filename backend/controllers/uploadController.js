@@ -1,5 +1,5 @@
-import cloudinary from '../config/cloudinary.js';
 import Book from '../models/Book.js';
+import { deleteFromR2, uploadToR2 } from '../utils/r2.js';
 import {
   createValidationError,
   detectAudioType,
@@ -7,37 +7,26 @@ import {
   detectEbookType,
 } from '../utils/fileValidation.js';
 
-const uploadBuffer = (buffer, options) =>
-  new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(options, (error, result) => {
-      if (error) {
-        reject(error);
-        return;
-      }
-      resolve(result);
-    });
-
-    stream.end(buffer);
-  });
+const uploadBuffer = async (buffer, { fileName, mimeType, folder }) => {
+  const key = await uploadToR2(buffer, fileName, mimeType, folder);
+  return {
+    key,
+    size: buffer.length,
+    duration: 0,
+  };
+};
 
 const findBook = async (bookId) => Book.findById(bookId);
 
-const deleteCloudinaryAsset = async (
-  publicId,
-  { resourceType = 'raw', type = 'private' } = {}
-) => {
+const deleteStoredAsset = async (publicId) => {
   if (!publicId) {
     return;
   }
 
   try {
-    await cloudinary.uploader.destroy(publicId, {
-      resource_type: resourceType,
-      type,
-      invalidate: true,
-    });
+    await deleteFromR2(publicId);
   } catch (error) {
-    console.warn(`Failed to delete Cloudinary asset "${publicId}":`, error.message);
+    console.warn(`Failed to delete R2 asset "${publicId}":`, error.message);
   }
 };
 
@@ -78,41 +67,29 @@ export const uploadBookCover = async (req, res, next) => {
     const previousPublicId = book.coverImage?.publicId;
 
     const uploaded = await uploadBuffer(req.file.buffer, {
+      fileName: `cover.${detectedCoverType === 'jpeg' ? 'jpg' : detectedCoverType}`,
+      mimeType: req.file.mimetype || `image/${detectedCoverType}`,
       folder: 'books/covers',
-      resource_type: 'image',
-      format: detectedCoverType === 'jpeg' ? 'jpg' : detectedCoverType,
-      transformation: [{ width: 1200, crop: 'limit' }],
     });
 
-    const thumbnail = cloudinary.url(uploaded.public_id, {
-      resource_type: 'image',
-      width: 420,
-      height: 620,
-      crop: 'fill',
-      quality: 'auto',
-      fetch_format: 'auto',
-      secure: true,
-    });
+    const thumbnail = uploaded.key;
 
     book.coverImage = {
-      url: uploaded.secure_url,
-      publicId: uploaded.public_id,
+      url: uploaded.key,
+      publicId: uploaded.key,
       thumbnail,
     };
     await book.save();
 
-    if (previousPublicId && previousPublicId !== uploaded.public_id) {
-      await deleteCloudinaryAsset(previousPublicId, {
-        resourceType: 'image',
-        type: 'upload',
-      });
+    if (previousPublicId && previousPublicId !== uploaded.key) {
+      await deleteStoredAsset(previousPublicId);
     }
 
     return res.json({
       success: true,
       data: {
-        url: uploaded.secure_url,
-        publicId: uploaded.public_id,
+        url: uploaded.key,
+        publicId: uploaded.key,
         thumbnail,
         detectedType: detectedCoverType,
       },
@@ -152,36 +129,32 @@ export const uploadEbookFile = async (req, res, next) => {
     const previousPublicId = book.formats?.ebook?.files?.[fileType]?.publicId;
 
     const uploaded = await uploadBuffer(req.file.buffer, {
+      fileName: `${book._id}-${fileType}-${Date.now()}.${fileType}`,
+      mimeType:
+        fileType === 'epub'
+          ? 'application/epub+zip'
+          : 'application/pdf',
       folder: 'books/ebooks',
-      resource_type: 'raw',
-      type: 'private',
-      format: fileType,
-      public_id: `${book._id}-${fileType}-${Date.now()}`,
-      use_filename: true,
-      unique_filename: false,
     });
 
     book.formats.ebook.available = true;
     book.formats.ebook.files[fileType] = {
-      url: uploaded.secure_url,
-      publicId: uploaded.public_id,
-      size: uploaded.bytes,
+      url: uploaded.key,
+      publicId: uploaded.key,
+      size: uploaded.size,
     };
     await book.save();
 
-    if (previousPublicId && previousPublicId !== uploaded.public_id) {
-      await deleteCloudinaryAsset(previousPublicId, {
-        resourceType: 'raw',
-        type: 'private',
-      });
+    if (previousPublicId && previousPublicId !== uploaded.key) {
+      await deleteStoredAsset(previousPublicId);
     }
 
     return res.json({
       success: true,
       data: {
-        url: uploaded.secure_url,
-        publicId: uploaded.public_id,
-        size: uploaded.bytes,
+        url: uploaded.key,
+        publicId: uploaded.key,
+        size: uploaded.size,
         fileType,
       },
     });
@@ -211,36 +184,31 @@ export const uploadAudiobook = async (req, res, next) => {
     const previousPublicId = book.formats?.audiobook?.file?.publicId;
 
     const uploaded = await uploadBuffer(req.file.buffer, {
+      fileName: `${book._id}-audio-${Date.now()}.${detectedAudioType}`,
+      mimeType: req.file.mimetype || 'audio/mpeg',
       folder: 'books/audio',
-      resource_type: 'video',
-      type: 'private',
-      format: detectedAudioType === 'wav' ? 'wav' : detectedAudioType,
-      public_id: `${book._id}-audio-${Date.now()}`,
     });
 
     book.formats.audiobook.available = true;
     book.formats.audiobook.file = {
-      url: uploaded.secure_url,
-      publicId: uploaded.public_id,
-      size: uploaded.bytes,
-      duration: uploaded.duration || 0,
+      url: uploaded.key,
+      publicId: uploaded.key,
+      size: uploaded.size,
+      duration: 0,
     };
     await book.save();
 
-    if (previousPublicId && previousPublicId !== uploaded.public_id) {
-      await deleteCloudinaryAsset(previousPublicId, {
-        resourceType: 'video',
-        type: 'private',
-      });
+    if (previousPublicId && previousPublicId !== uploaded.key) {
+      await deleteStoredAsset(previousPublicId);
     }
 
     return res.json({
       success: true,
       data: {
-        url: uploaded.secure_url,
-        publicId: uploaded.public_id,
-        size: uploaded.bytes,
-        duration: uploaded.duration || 0,
+        url: uploaded.key,
+        publicId: uploaded.key,
+        size: uploaded.size,
+        duration: 0,
         fileType: detectedAudioType,
       },
     });
@@ -253,22 +221,22 @@ const clearBookFileRef = (book, fileType) => {
   if (fileType === 'cover') {
     const publicId = book.coverImage?.publicId;
     book.coverImage = undefined;
-    return { publicId, resourceType: 'image', type: 'upload' };
+    return { publicId };
   }
 
   if (fileType === 'epub' || fileType === 'pdf') {
     const publicId = book.formats.ebook.files[fileType]?.publicId;
     book.formats.ebook.files[fileType] = undefined;
-    return { publicId, resourceType: 'raw', type: 'private' };
+    return { publicId };
   }
 
   if (fileType === 'audio') {
     const publicId = book.formats.audiobook.file?.publicId;
     book.formats.audiobook.file = undefined;
-    return { publicId, resourceType: 'video', type: 'private' };
+    return { publicId };
   }
 
-  return { publicId: null, resourceType: 'raw', type: 'private' };
+  return { publicId: null };
 };
 
 export const deleteFile = async (req, res, next) => {
@@ -280,12 +248,12 @@ export const deleteFile = async (req, res, next) => {
       return res.status(404).json({ success: false, error: 'Book not found' });
     }
 
-    const { publicId, resourceType, type } = clearBookFileRef(book, fileType);
+    const { publicId } = clearBookFileRef(book, fileType);
     if (!publicId) {
       return res.status(404).json({ success: false, error: 'File not found for selected type' });
     }
 
-    await deleteCloudinaryAsset(publicId, { resourceType, type });
+    await deleteStoredAsset(publicId);
     await book.save();
 
     return res.json({
@@ -296,4 +264,3 @@ export const deleteFile = async (req, res, next) => {
     return next(error);
   }
 };
-

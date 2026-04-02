@@ -2,7 +2,7 @@ import fs from 'fs';
 import Book from '../models/Book.js';
 import Review from '../models/Review.js';
 import { bookMutationSchema } from '../utils/validation.js';
-import { uploadToCloudinary } from '../utils/cloudinaryUpload.js';
+import { uploadToR2 } from '../utils/r2.js';
 
 // Coerce string booleans that arrive via FormData (multipart)
 const coerceBoolStr = (val) => {
@@ -62,6 +62,33 @@ const toPlainObject = (value) => {
   }
 
   return { ...value };
+};
+
+const uploadDiskFileToR2 = async (file, folder) => {
+  if (!file?.path) {
+    return null;
+  }
+
+  const buffer = fs.readFileSync(file.path);
+  try {
+    const key = await uploadToR2(
+      buffer,
+      file.originalname || 'asset',
+      file.mimetype || 'application/octet-stream',
+      folder
+    );
+
+    return {
+      url: key,
+      publicId: key,
+      size: buffer.length,
+      duration: 0,
+    };
+  } finally {
+    if (fs.existsSync(file.path)) {
+      fs.unlinkSync(file.path);
+    }
+  }
 };
 
 export const getAllBooks = async (req, res, next) => {
@@ -149,14 +176,14 @@ export const createBook = async (req, res, next) => {
 
     if (req.files) {
       if (req.files.coverImage?.[0]) {
-        const result = await uploadToCloudinary(req.files.coverImage[0].path, 'books/covers');
+        const result = await uploadDiskFileToR2(req.files.coverImage[0], 'books/covers');
         if (result) value.coverImage = { url: result.url, publicId: result.publicId };
       }
       
       value.formats = value.formats || {};
 
       if (req.files.epubFile?.[0]) {
-        const result = await uploadToCloudinary(req.files.epubFile[0].path, 'books/ebooks');
+        const result = await uploadDiskFileToR2(req.files.epubFile[0], 'books/ebooks');
         if (result) {
           value.formats.ebook = value.formats.ebook || {};
           value.formats.ebook.available = true;
@@ -166,7 +193,7 @@ export const createBook = async (req, res, next) => {
       }
 
       if (req.files.pdfFile?.[0]) {
-        const result = await uploadToCloudinary(req.files.pdfFile[0].path, 'books/ebooks');
+        const result = await uploadDiskFileToR2(req.files.pdfFile[0], 'books/ebooks');
         if (result) {
           value.formats.ebook = value.formats.ebook || {};
           value.formats.ebook.available = true;
@@ -176,7 +203,7 @@ export const createBook = async (req, res, next) => {
       }
 
       if (req.files.audioFile?.[0]) {
-        const result = await uploadToCloudinary(req.files.audioFile[0].path, 'books/audiobooks');
+        const result = await uploadDiskFileToR2(req.files.audioFile[0], 'books/audiobooks');
         if (result) {
           value.formats.audiobook = value.formats.audiobook || {};
           value.formats.audiobook.available = true;
@@ -228,14 +255,14 @@ export const updateBook = async (req, res, next) => {
 
     if (req.files) {
       if (req.files.coverImage?.[0]) {
-        const result = await uploadToCloudinary(req.files.coverImage[0].path, 'books/covers');
+        const result = await uploadDiskFileToR2(req.files.coverImage[0], 'books/covers');
         if (result) value.coverImage = { url: result.url, publicId: result.publicId };
       }
       
       value.formats = value.formats || {};
 
       if (req.files.epubFile?.[0]) {
-        const result = await uploadToCloudinary(req.files.epubFile[0].path, 'books/ebooks');
+        const result = await uploadDiskFileToR2(req.files.epubFile[0], 'books/ebooks');
         if (result) {
           value.formats.ebook = value.formats.ebook || {};
           value.formats.ebook.available = true;
@@ -245,7 +272,7 @@ export const updateBook = async (req, res, next) => {
       }
 
       if (req.files.pdfFile?.[0]) {
-        const result = await uploadToCloudinary(req.files.pdfFile[0].path, 'books/ebooks');
+        const result = await uploadDiskFileToR2(req.files.pdfFile[0], 'books/ebooks');
         if (result) {
           value.formats.ebook = value.formats.ebook || {};
           value.formats.ebook.available = true;
@@ -255,7 +282,7 @@ export const updateBook = async (req, res, next) => {
       }
 
       if (req.files.audioFile?.[0]) {
-        const result = await uploadToCloudinary(req.files.audioFile[0].path, 'books/audiobooks');
+        const result = await uploadDiskFileToR2(req.files.audioFile[0], 'books/audiobooks');
         if (result) {
           value.formats.audiobook = value.formats.audiobook || {};
           value.formats.audiobook.available = true;

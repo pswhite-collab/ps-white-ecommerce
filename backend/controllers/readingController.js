@@ -106,7 +106,7 @@ const buildPreviewPayload = (book) => {
   };
 };
 
-const resolveReaderAssetUrl = (file, expiresIn, format) => {
+const resolveReaderAssetUrl = async (file, expiresIn, format) => {
   if (!file) {
     return null;
   }
@@ -434,8 +434,8 @@ export const getBookContent = async (req, res, next) => {
     return res.json({
       success: true,
       data: {
-        epubUrl: resolveReaderAssetUrl(epubFile, expiresIn, 'epub'),
-        pdfUrl: resolveReaderAssetUrl(pdfFile, expiresIn, 'pdf'),
+        epubUrl: await resolveReaderAssetUrl(epubFile, expiresIn, 'epub'),
+        pdfUrl: await resolveReaderAssetUrl(pdfFile, expiresIn, 'pdf'),
         expiresAt,
         security: {
           watermarkText: req.user?.email

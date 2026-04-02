@@ -1,46 +1,31 @@
-import cloudinary from '../config/cloudinary.js';
+import { getSignedDownloadUrl } from './r2.js';
 
 export const generateSecureUrl = (
-  publicId,
+  key,
   {
     expiresIn = 24 * 60 * 60,
-    resourceType = 'raw',
-    type = 'private',
-    format,
   } = {}
 ) => {
-  const timestamp = Math.floor(Date.now() / 1000) + expiresIn;
-  return cloudinary.url(publicId, {
-    resource_type: resourceType,
-    type,
-    sign_url: true,
-    secure: true,
-    timestamp,
-    format,
-  });
+  if (!key) {
+    return null;
+  }
+  return getSignedDownloadUrl(key, expiresIn);
 };
 
 export const generateSecureDownloadUrl = (
-  publicId,
+  key,
   {
     expiresIn = 24 * 60 * 60,
-    type = 'private',
-    format,
   } = {}
 ) => {
-  const expiresAt = Math.floor(Date.now() / 1000) + expiresIn;
-
-  return cloudinary.utils.private_download_url(publicId, format || null, {
-    resource_type: 'raw',
-    type,
-    attachment: false,
-    expires_at: expiresAt,
-    secure: true,
-  });
+  if (!key) {
+    return null;
+  }
+  return getSignedDownloadUrl(key, expiresIn);
 };
 
-const generateSignedUrl = (publicId, expiresIn = 24 * 60 * 60) => {
-  return generateSecureUrl(publicId, { expiresIn });
+const generateSignedUrl = (key, expiresIn = 24 * 60 * 60) => {
+  return generateSecureUrl(key, { expiresIn });
 };
 
 export default generateSignedUrl;

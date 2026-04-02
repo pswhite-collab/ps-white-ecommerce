@@ -1,31 +1,36 @@
 import fs from 'fs';
-import cloudinary from '../config/cloudinary.js';
+import path from 'path';
+import { uploadToR2 } from './r2.js';
 
-export const uploadToCloudinary = async (localFilePath, folderName) => {
+const inferMimeType = (lowerPath) => {
+  if (lowerPath.endsWith('.epub')) return 'application/epub+zip';
+  if (lowerPath.endsWith('.pdf')) return 'application/pdf';
+  if (lowerPath.endsWith('.mp3')) return 'audio/mpeg';
+  if (lowerPath.endsWith('.wav')) return 'audio/wav';
+  if (lowerPath.endsWith('.m4a')) return 'audio/x-m4a';
+  if (lowerPath.endsWith('.png')) return 'image/png';
+  if (lowerPath.endsWith('.webp')) return 'image/webp';
+  if (lowerPath.endsWith('.jpg') || lowerPath.endsWith('.jpeg')) return 'image/jpeg';
+  return 'application/octet-stream';
+};
+
+export const uploadFileToStorage = async (localFilePath, folderName) => {
   try {
     if (!localFilePath) return null;
-    
-    const lowerPath = localFilePath.toLowerCase();
-    let resourceType = 'auto';
-    
-    if (lowerPath.endsWith('.epub') || lowerPath.endsWith('.pdf')) {
-      resourceType = 'raw';
-    } else if (lowerPath.endsWith('.mp3') || lowerPath.endsWith('.wav') || lowerPath.endsWith('.m4a')) {
-      resourceType = 'video';
-    }
 
-    const response = await cloudinary.uploader.upload(localFilePath, {
-      folder: folderName,
-      resource_type: resourceType,
-    });
-    
+    const lowerPath = localFilePath.toLowerCase();
+    const fileName = path.basename(localFilePath);
+    const mimeType = inferMimeType(lowerPath);
+    const fileBuffer = fs.readFileSync(localFilePath);
+    const key = await uploadToR2(fileBuffer, fileName, mimeType, folderName || 'general');
+
     fs.unlinkSync(localFilePath);
-    
+
     return {
-      url: response.secure_url,
-      publicId: response.public_id,
-      size: response.bytes,
-      duration: response.duration || 0,
+      url: key,
+      publicId: key,
+      size: fileBuffer.length,
+      duration: 0,
     };
   } catch (error) {
     if (localFilePath && fs.existsSync(localFilePath)) {
