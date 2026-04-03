@@ -1,6 +1,7 @@
 import Joi from 'joi';
 import Order from '../models/Order.js';
 import Book from '../models/Book.js';
+import { serializeOrderForClient } from '../utils/serializeBookForClient.js';
 import { orderCreateSchema } from '../utils/validation.js';
 import { sendShippingNotificationEmail } from '../utils/email.js';
 
@@ -401,8 +402,9 @@ export const getOrderById = async (req, res, next) => {
     if (!isOwner && !isAdmin) {
       return res.status(403).json({ success: false, error: 'Access denied' });
     }
+    const serializedOrder = await serializeOrderForClient(order);
 
-    return res.json({ success: true, data: { order } });
+    return res.json({ success: true, data: { order: serializedOrder } });
   } catch (error) {
     return next(error);
   }

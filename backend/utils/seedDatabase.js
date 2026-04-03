@@ -10,9 +10,18 @@ import User from '../models/User.js';
 
 dotenv.config();
 
-const DEFAULT_PASSWORD = 'Password@123';
 const DEFAULT_AUTHOR = 'PS White';
 const ADMIN_EMAIL = (process.env.ADMIN_WHITELIST_EMAIL || 'pswhite786@gmail.com').toLowerCase();
+const SEED_CUSTOMER_PASSWORD = process.env.SEED_CUSTOMER_PASSWORD;
+const SEED_ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD;
+
+const requireSeedPassword = (value, envName) => {
+  const normalizedValue = String(value || '').trim();
+  if (!normalizedValue) {
+    throw new Error(`${envName} is required to run seedDatabase.js`);
+  }
+  return normalizedValue;
+};
 
 const loremExcerpt =
   'The night was heavy with rain and unfinished memories. In the quiet between thunder and breath, every page of the past felt newly alive, asking difficult questions about love, guilt, and the cost of becoming someone else. Streets slept beneath dim lamps while old letters waited in locked drawers, and somewhere a train crossed the river like a thought refusing to fade. What remains after a promise breaks is not always silence. Sometimes it is a softer language made of small acts, second chances, and the courage to stay when leaving would be easier. Through monsoon skies and restless mornings, each chapter follows hearts learning to forgive, to return, and to begin again with open hands.';
@@ -353,7 +362,7 @@ const ensureUser = async ({
   firstName,
   lastName,
   role = 'customer',
-  password = DEFAULT_PASSWORD,
+  password,
 }) => {
   const normalizedEmail = email.toLowerCase();
   let user = await User.findOne({ email: normalizedEmail }).select('+password');
@@ -406,7 +415,7 @@ const seedAdminUser = async () => {
     firstName: 'PS',
     lastName: 'White',
     role: 'admin',
-    password: process.env.SEED_ADMIN_PASSWORD || 'Admin@12345',
+    password: requireSeedPassword(SEED_ADMIN_PASSWORD, 'SEED_ADMIN_PASSWORD'),
   });
 
   await AdminWhitelist.findOneAndUpdate(
@@ -443,8 +452,15 @@ const seedBooks = async () => {
 
 const seedCustomers = async () => {
   const usersByEmail = new Map();
+  const seedCustomerPassword = requireSeedPassword(
+    SEED_CUSTOMER_PASSWORD,
+    'SEED_CUSTOMER_PASSWORD'
+  );
   for (const seed of customerSeeds) {
-    const user = await ensureUser(seed);
+    const user = await ensureUser({
+      ...seed,
+      password: seedCustomerPassword,
+    });
     usersByEmail.set(user.email.toLowerCase(), user);
   }
   return usersByEmail;
@@ -577,7 +593,6 @@ const runSeed = async () => {
   console.log(`Reviews seeded: ${reviewCount}`);
   console.log(`Blog posts created: ${blogCount}`);
   console.log(`Quotes created: ${quoteCount}`);
-  console.log('Test user password:', DEFAULT_PASSWORD);
 };
 
 runSeed()

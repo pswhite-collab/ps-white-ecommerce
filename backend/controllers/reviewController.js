@@ -1,6 +1,7 @@
 import Review from '../models/Review.js';
 import Book from '../models/Book.js';
 import Order from '../models/Order.js';
+import { serializeReviewsForClient } from '../utils/serializeBookForClient.js';
 import { reviewSchema } from '../utils/validation.js';
 
 const PURCHASE_STATUSES = ['processing', 'shipped', 'delivered', 'completed'];
@@ -88,11 +89,12 @@ export const getFeaturedReviews = async (req, res, next) => {
       .populate('book', 'title')
       .sort({ createdAt: -1 })
       .limit(limit);
+    const serializedReviews = await serializeReviewsForClient(reviews);
 
     return res.json({
       success: true,
       data: {
-        reviews,
+        reviews: serializedReviews,
       },
     });
   } catch (error) {
@@ -122,6 +124,7 @@ export const getAllReviewsAdmin = async (req, res, next) => {
       .populate('user', 'firstName lastName email')
       .populate('book', 'title coverImage')
       .sort({ createdAt: -1 });
+    const serializedReviews = await serializeReviewsForClient(reviews);
 
     const grouped = await Review.aggregate([
       {
@@ -141,10 +144,10 @@ export const getAllReviewsAdmin = async (req, res, next) => {
 
     return res.json({
       success: true,
-      count: reviews.length,
+      count: serializedReviews.length,
       statusCounts,
       data: {
-        reviews,
+        reviews: serializedReviews,
       },
     });
   } catch (error) {

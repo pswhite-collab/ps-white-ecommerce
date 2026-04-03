@@ -1,7 +1,12 @@
 import { Router } from 'express';
 import passport from 'passport';
 import { protect } from '../middleware/auth.js';
-import { authLimiter, oauthCallbackLimiter } from '../middleware/rateLimiter.js';
+import {
+  authLimiter,
+  forgotPasswordLimiter,
+  oauthCallbackLimiter,
+  passwordAuthLimiter,
+} from '../middleware/rateLimiter.js';
 import generateToken from '../utils/generateToken.js';
 import {
   forgotPassword,
@@ -16,8 +21,8 @@ import {
 
 const router = Router();
 
-router.post('/register', register);
-router.post('/login', login);
+router.post('/register', passwordAuthLimiter, register);
+router.post('/login', passwordAuthLimiter, login);
 router.post('/logout', logout);
 router.get(
   '/google',
@@ -45,7 +50,7 @@ router.get(
   }
 );
 router.get('/verify-email/:token', verifyEmail);
-router.post('/forgot-password', forgotPassword);
+router.post('/forgot-password', forgotPasswordLimiter, forgotPassword);
 router.post('/reset-password', resetPassword);
 router.get('/me', protect, getCurrentUser);
 router.put('/me', protect, updateCurrentUser);

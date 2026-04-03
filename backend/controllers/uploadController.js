@@ -1,4 +1,5 @@
 import Book from '../models/Book.js';
+import { generateSecureUrl } from '../utils/generateSignedUrl.js';
 import { deleteFromR2, uploadToR2 } from '../utils/r2.js';
 import {
   createValidationError,
@@ -47,6 +48,15 @@ const normalizeRequestedEbookType = (value) => {
   return normalized;
 };
 
+const serializeCoverAssetUrl = async (value) => {
+  const normalizedValue = String(value || '').trim();
+  if (!normalizedValue || /^https?:\/\//i.test(normalizedValue)) {
+    return normalizedValue;
+  }
+
+  return generateSecureUrl(normalizedValue, { expiresIn: 3600 });
+};
+
 export const uploadBookCover = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -85,12 +95,15 @@ export const uploadBookCover = async (req, res, next) => {
       await deleteStoredAsset(previousPublicId);
     }
 
+    const signedUrl = await serializeCoverAssetUrl(uploaded.key);
+    const signedThumbnail = await serializeCoverAssetUrl(thumbnail);
+
     return res.json({
       success: true,
       data: {
-        url: uploaded.key,
+        url: signedUrl || uploaded.key,
         publicId: uploaded.key,
-        thumbnail,
+        thumbnail: signedThumbnail || thumbnail,
         detectedType: detectedCoverType,
       },
     });

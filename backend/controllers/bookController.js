@@ -1,6 +1,7 @@
 import fs from 'fs';
 import Book from '../models/Book.js';
 import Review from '../models/Review.js';
+import { serializeBookForClient, serializeBooksForClient } from '../utils/serializeBookForClient.js';
 import { bookMutationSchema } from '../utils/validation.js';
 import { uploadToR2 } from '../utils/r2.js';
 
@@ -104,11 +105,12 @@ export const getAllBooks = async (req, res, next) => {
       Book.find(filters).sort(sort).skip(skip).limit(limit),
       Book.countDocuments(filters),
     ]);
+    const serializedBooks = await serializeBooksForClient(books);
 
     return res.json({
       success: true,
       data: {
-        books,
+        books: serializedBooks,
         pagination: {
           page,
           limit,
@@ -141,7 +143,7 @@ export const getBookById = async (req, res, next) => {
       success: true,
       data: {
         book: {
-          ...book.toObject(),
+          ...(await serializeBookForClient(book)),
           reviews,
         },
       },
@@ -213,11 +215,12 @@ export const createBook = async (req, res, next) => {
     }
 
     const created = await Book.create(value);
+    const serializedBook = await serializeBookForClient(created);
 
     return res.status(201).json({
       success: true,
       data: {
-        book: created,
+        book: serializedBook,
       },
     });
   } catch (error) {
@@ -341,11 +344,12 @@ export const updateBook = async (req, res, next) => {
       formats: mergedFormats,
     });
     const updated = await currentBook.save();
+    const serializedBook = await serializeBookForClient(updated);
 
     return res.json({
       success: true,
       data: {
-        book: updated,
+        book: serializedBook,
       },
     });
   } catch (error) {
@@ -403,8 +407,9 @@ export const searchBooks = async (req, res, next) => {
         $or: [{ title: regex }, { author: regex }, { description: regex }],
       }).limit(20);
     }
+    const serializedBooks = await serializeBooksForClient(books);
 
-    return res.json({ success: true, data: { books } });
+    return res.json({ success: true, data: { books: serializedBooks } });
   } catch (error) {
     return next(error);
   }
@@ -415,8 +420,9 @@ export const getFeaturedBooks = async (_req, res, next) => {
     const books = await Book.find({ active: true, featured: true })
       .sort({ createdAt: -1 })
       .limit(8);
+    const serializedBooks = await serializeBooksForClient(books);
 
-    return res.json({ success: true, data: { books } });
+    return res.json({ success: true, data: { books: serializedBooks } });
   } catch (error) {
     return next(error);
   }

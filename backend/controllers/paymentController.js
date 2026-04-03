@@ -349,7 +349,17 @@ export const stripeWebhook = async (req, res, next) => {
 
     let event = req.body;
 
-    if (stripeClient && webhookSecret && signature) {
+    if (isProduction) {
+      if (!stripeClient || !webhookSecret) {
+        return res.status(503).json({ success: false, error: 'Stripe webhook is not configured' });
+      }
+
+      if (!signature) {
+        return res.status(400).json({ success: false, error: 'Missing stripe signature' });
+      }
+
+      event = stripeClient.webhooks.constructEvent(req.body, signature, webhookSecret);
+    } else if (stripeClient && webhookSecret && signature) {
       event = stripeClient.webhooks.constructEvent(req.body, signature, webhookSecret);
     }
 

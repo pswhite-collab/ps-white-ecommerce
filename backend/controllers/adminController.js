@@ -4,6 +4,7 @@ import Order from '../models/Order.js';
 import ReadingProgress from '../models/ReadingProgress.js';
 import Review from '../models/Review.js';
 import User from '../models/User.js';
+import { serializeEntitiesWithBookForClient } from '../utils/serializeBookForClient.js';
 
 const SALES_STATUSES = ['processing', 'shipped', 'delivered', 'completed'];
 
@@ -385,6 +386,7 @@ export const getAdminCustomerById = async (req, res, next) => {
     ]);
 
     const orderSummary = orderSummaryAgg[0] || { totalOrders: 0, totalSpent: 0 };
+    const serializedReadingProgress = await serializeEntitiesWithBookForClient(readingProgress);
 
     return res.json({
       success: true,
@@ -396,7 +398,7 @@ export const getAdminCustomerById = async (req, res, next) => {
         },
         totalReviews,
         recentOrders,
-        readingProgress,
+        readingProgress: serializedReadingProgress,
       },
     });
   } catch (error) {
@@ -422,6 +424,7 @@ export const getCustomerReading = async (req, res, next) => {
       .populate('book', 'title coverImage formats.ebook.pageCount')
       .sort({ lastReadAt: -1 })
       .lean();
+    const serializedReadingProgress = await serializeEntitiesWithBookForClient(readingProgress);
 
     const summary = readingProgress.reduce(
       (acc, row) => {
@@ -444,7 +447,7 @@ export const getCustomerReading = async (req, res, next) => {
       data: {
         customer,
         summary,
-        readingProgress,
+        readingProgress: serializedReadingProgress,
       },
     });
   } catch (error) {

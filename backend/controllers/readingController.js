@@ -3,6 +3,7 @@ import Book from '../models/Book.js';
 import Order from '../models/Order.js';
 import ReadingProgress from '../models/ReadingProgress.js';
 import User from '../models/User.js';
+import { serializeEntitiesWithBookForClient } from '../utils/serializeBookForClient.js';
 import { bookmarkSchema, progressUpdateSchema, readingSettingsSchema } from '../utils/validation.js';
 import { generateSecureDownloadUrl } from '../utils/generateSignedUrl.js';
 
@@ -165,8 +166,9 @@ export const getLibrary = async (req, res, next) => {
       book,
       progress: progressMap.get(bookId) || null,
     }));
+    const serializedItems = await serializeEntitiesWithBookForClient(items);
 
-    return res.json({ success: true, data: { library: items } });
+    return res.json({ success: true, data: { library: serializedItems } });
   } catch (error) {
     return next(error);
   }
@@ -392,8 +394,9 @@ export const getCurrentlyReading = async (req, res, next) => {
     })
       .populate('book')
       .sort({ lastReadAt: -1 });
+    const serializedProgress = await serializeEntitiesWithBookForClient(progress);
 
-    return res.json({ success: true, data: { items: progress } });
+    return res.json({ success: true, data: { items: serializedProgress } });
   } catch (error) {
     return next(error);
   }
@@ -410,11 +413,11 @@ export const getBookContent = async (req, res, next) => {
       ? 5
       : Math.max(1, configuredDownloadLimit);
     const configuredSignedUrlTtl = Number.parseInt(
-      process.env.READER_SIGNED_URL_EXPIRES_IN || '86400',
+      process.env.READER_SIGNED_URL_EXPIRES_IN || '3600',
       10
     );
     const expiresIn = Number.isNaN(configuredSignedUrlTtl)
-      ? 86400
+      ? 3600
       : Math.max(60, configuredSignedUrlTtl);
 
     const ownsBook = await userOwnsBook(req.user._id, bookId);

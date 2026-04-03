@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import cors from 'cors';
 import express from 'express';
+import fs from 'fs';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import path from 'path';
@@ -34,6 +35,8 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const isProduction = process.env.NODE_ENV === 'production';
 const frontendDistPath = path.resolve(__dirname, '../frontend/dist');
+const frontendIndexPath = path.join(frontendDistPath, 'index.html');
+const hasFrontendBuild = fs.existsSync(frontendIndexPath);
 
 const allowedOrigins = [
   process.env.CLIENT_URL,
@@ -151,10 +154,19 @@ app.use('/api', (req, res) => {
   res.status(404).json({ success: false, error: `Route not found: ${req.originalUrl}` });
 });
 
-if (isProduction) {
+if (isProduction && hasFrontendBuild) {
   app.use(express.static(frontendDistPath));
   app.get('*', (_req, res) => {
-    res.sendFile(path.join(frontendDistPath, 'index.html'));
+    res.sendFile(frontendIndexPath);
+  });
+}
+
+if (isProduction && !hasFrontendBuild) {
+  app.get('/', (_req, res) => {
+    res.status(200).json({
+      success: true,
+      message: 'PS White API is running',
+    });
   });
 }
 
