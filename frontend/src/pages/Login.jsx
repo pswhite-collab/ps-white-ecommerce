@@ -46,7 +46,8 @@ export default function Login() {
 
     try {
       await login(email, password);
-      navigate('/library');
+      const redirectUrl = searchParams.get('redirect') || '/library';
+      navigate(redirectUrl);
     } catch (err) {
       setError(err.message);
     } finally {

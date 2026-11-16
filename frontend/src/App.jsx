@@ -34,8 +34,25 @@ import ManageBlog from './pages/Admin/ManageBlog';
 import ManageNewsletter from './pages/Admin/ManageNewsletter';
 import Settings from './pages/Admin/Settings';
 import api from './services/api';
+import { useSiteSettings } from './context/SiteSettingsContext';
+import { useAuth } from './context/AuthContext';
 
 const AppLayout = () => {
+  const { settings } = useSiteSettings();
+  const { user } = useAuth();
+  const isAdmin = user && ['admin', 'super_admin'].includes(user.role);
+
+  if (settings?.maintenanceMode && !isAdmin && !window.location.pathname.startsWith('/admin')) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-milk px-4 text-center text-charcoal">
+        <h1 className="font-display text-5xl text-mocha">Under Maintenance</h1>
+        <p className="mt-4 max-w-md text-charcoal/70">
+          The PS White website is currently undergoing scheduled maintenance. Please check back shortly.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-milk text-charcoal">
       <QuotePopup />

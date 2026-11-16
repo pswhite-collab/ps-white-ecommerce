@@ -688,7 +688,7 @@ const seedBlogAndQuotes = async (adminId) => {
     {
       text: 'What remains after a promise breaks is not always silence. Sometimes it is the courage to begin again.',
       author: DEFAULT_AUTHOR,
-      category: 'Memory',
+      category: 'inspiration',
       active: true,
       startDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
       endDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
@@ -697,7 +697,7 @@ const seedBlogAndQuotes = async (adminId) => {
     {
       text: 'In quiet corners, memories find their true names.',
       author: DEFAULT_AUTHOR,
-      category: 'Reflection',
+      category: 'reading',
       active: true,
       startDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
       endDate: new Date(Date.now() + 48 * 60 * 60 * 1000),

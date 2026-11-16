@@ -399,6 +399,12 @@ describe('Backend API Test Suite (pswhite_local)', () => {
       const book = await Book.findOne({ title: 'Paper Lanterns in the Mist' });
       assert.ok(book);
 
+      // Clean up any test review from a previous test run to ensure repeatable test execution
+      const rahul = await User.findOne({ email: 'rahul@example.com' });
+      if (rahul) {
+        await Review.deleteMany({ user: rahul._id, book: book._id });
+      }
+
       // Rahul owns Paper Lanterns in the Mist in seeded demo orders (status: processing)
       const res = await apiRequest('/api/reviews', {
         method: 'POST',

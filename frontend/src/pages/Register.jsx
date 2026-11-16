@@ -3,10 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import Button from '../components/common/Button';
 import Input from '../components/common/Input';
 import { useAuth } from '../context/AuthContext';
+import { useSiteSettings } from '../context/SiteSettingsContext';
 
 export default function Register() {
   const navigate = useNavigate();
   const { register } = useAuth();
+  const { settings } = useSiteSettings();
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
@@ -17,6 +19,18 @@ export default function Register() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+
+  if (settings && settings.allowRegistration === false) {
+    return (
+      <section className="mx-auto max-w-xl rounded-card border border-taupe/30 bg-milk p-8 text-center shadow-soft">
+        <h1 className="font-display text-4xl text-mocha">Registration Closed</h1>
+        <p className="mt-4 text-charcoal/70">User registration is currently disabled by the site administrator.</p>
+        <p className="mt-4 text-sm text-charcoal/70">
+          Already have an account? <Link to="/login" className="text-mocha underline">Sign in</Link>
+        </p>
+      </section>
+    );
+  }
 
   const onChange = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
   const handleGoogleSignup = () => {
