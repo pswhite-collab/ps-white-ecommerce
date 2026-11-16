@@ -12,6 +12,7 @@
     "seed": "npm --prefix backend run seed"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "concurrently": "^9.1.2"
   }
 }

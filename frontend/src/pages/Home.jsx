@@ -240,7 +240,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="about" className="grid gap-10 rounded-[24px] bg-oat/45 px-6 py-12 sm:px-10 lg:grid-cols-[0.95fr_1.2fr]">
+      <section id="about" className="scroll-mt-28 grid gap-10 rounded-[24px] bg-oat/45 px-6 py-12 sm:px-10 lg:grid-cols-[0.95fr_1.2fr]">
         <div className="relative mx-auto h-[420px] w-full max-w-[360px]">
           <div className="flex h-full items-center justify-center rounded-[8px_44px_8px_44px] bg-[linear-gradient(135deg,#A39382,#232323)] font-display text-7xl italic text-milk">
             PS

@@ -359,7 +359,7 @@ export default function Checkout() {
           ) : null}
         </div>
 
-        <aside className="rounded-card border border-taupe/30 bg-milk p-5 shadow-soft lg:sticky lg:top-4">
+        <aside className="rounded-card border border-taupe/30 bg-milk p-5 shadow-soft lg:sticky lg:top-28">
           <h3 className="font-display text-3xl text-mocha">Order Summary</h3>
           <div className="mt-4 space-y-2 text-sm">
             <div className="flex justify-between text-charcoal/80"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>

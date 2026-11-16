@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import Button from '../common/Button';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
+import { useSiteSettings } from '../../context/SiteSettingsContext';
 
 const navItems = [
   { label: 'Books', to: '/books' },
@@ -16,6 +17,12 @@ export default function Header() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const { itemCount } = useCart();
   const { user, isAuthenticated, logout } = useAuth();
+  const { settings } = useSiteSettings();
+
+  const siteName = settings?.siteName || 'PS White';
+  const nameParts = siteName.trim().split(/\s+/);
+  const firstWord = nameParts[0] || 'PS';
+  const restWord = nameParts.slice(1).join(' ') || 'White';
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -27,13 +34,9 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-taupe/30 bg-[rgba(251,247,244,0.9)] backdrop-blur-xl">
-      <div className="mx-auto flex h-[72px] w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link to="/" className="font-display text-3xl font-semibold tracking-wide text-charcoal no-underline">
-          PS <span className="text-mocha">White</span>
-        </Link>
-
-        <nav className="hidden items-center gap-8 md:flex">
+    <header className="sticky top-0 z-40 border-b border-taupe/30 bg-[rgba(251,247,244,0.95)] backdrop-blur-xl">
+      <div className="mx-auto grid h-[90px] w-full max-w-7xl grid-cols-[1fr_auto_1fr] items-center px-4 sm:px-6 lg:px-8">
+        <nav className="col-start-1 hidden items-center gap-8 justify-self-start md:flex">
           {navItems.map((item) =>
             item.isHashLink ? (
               <Link
@@ -60,16 +63,26 @@ export default function Header() {
           )}
         </nav>
 
-        <div className="hidden items-center gap-3 md:flex">
+        <Link
+          to="/"
+          className="col-start-2 flex items-center justify-self-center font-display text-4xl md:text-5xl font-medium tracking-wide no-underline transition-opacity hover:opacity-95"
+        >
+          <span className="text-taupe">{firstWord}</span>
+          <span className="ml-2 text-mocha">{restWord}</span>
+        </Link>
+
+        <div className="col-start-3 hidden items-center gap-3 justify-self-end md:flex">
           <Link
             to="/cart"
             className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-taupe/60 text-[10px] font-semibold uppercase tracking-[0.14em] text-charcoal no-underline transition-colors duration-smooth ease-smooth hover:bg-oat"
             aria-label="Open cart"
           >
             Cart
-            <span className="absolute -right-1 -top-1 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-mocha px-1 text-[10px] font-semibold text-milk">
-              {itemCount}
-            </span>
+            {itemCount > 0 ? (
+              <span className="absolute -right-1 -top-1 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-charcoal px-1 text-[10px] font-semibold text-milk">
+                {itemCount}
+              </span>
+            ) : null}
           </Link>
 
           {!isAuthenticated ? (
@@ -89,7 +102,7 @@ export default function Header() {
                 onClick={() => setShowUserMenu((prev) => !prev)}
               >
                 <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-mocha text-[11px] font-semibold text-milk">
-                  {user?.firstName?.[0] || user?.email?.[0] || 'U'}
+                  {user?.firstName?.[0] || user?.email?.[0] || 'P'}
                 </span>
                 Account
               </button>
@@ -130,11 +143,11 @@ export default function Header() {
 
         <button
           type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-taupe/60 text-charcoal md:hidden"
+          className="col-start-3 inline-flex h-10 w-10 items-center justify-center rounded-full border border-taupe/60 text-charcoal justify-self-end md:hidden"
           onClick={() => setIsMenuOpen((prev) => !prev)}
           aria-label="Toggle mobile menu"
         >
-          <span className="text-lg leading-none">{isMenuOpen ? 'x' : '|||'} </span>
+          <span className="text-lg leading-none">{isMenuOpen ? '✕' : '☰'}</span>
         </button>
       </div>
 
@@ -207,4 +220,3 @@ export default function Header() {
     </header>
   );
 }
-

@@ -13,7 +13,7 @@ export default function CartSummary({
   onCheckout,
 }) {
   return (
-    <aside className="sticky top-24 rounded-card border border-taupe/30 bg-milk p-5 shadow-soft">
+    <aside className="sticky top-28 rounded-card border border-taupe/30 bg-milk p-5 shadow-soft">
       <h3 className="font-display text-3xl text-mocha">Summary</h3>
 
       <div className="mt-4 space-y-2 text-sm text-charcoal/80">
