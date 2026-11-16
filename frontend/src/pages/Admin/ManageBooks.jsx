@@ -29,18 +29,19 @@ export default function ManageBooks() {
     loadBooks();
   }, []);
 
-  const saveBook = async (payload) => {
+  const saveBook = async (payload, existingId) => {
     setSaving(true);
     setError('');
 
     try {
-      const book = editingBook
-        ? await bookService.updateBook(editingBook._id, payload)
+      const targetId = existingId || editingBook?._id;
+      const book = targetId
+        ? await bookService.updateBook(targetId, payload)
         : await bookService.createBook(payload);
       await loadBooks();
       return book;
     } catch (err) {
-      setError(err.message);
+      setError(err?.response?.data?.error || err.message);
       throw err;
     } finally {
       setSaving(false);
@@ -129,8 +130,15 @@ export default function ManageBooks() {
             initialValue={editingBook}
             submitting={saving}
             onSubmit={saveBook}
-            onClose={() => setIsModalOpen(false)}
-            onUploadCover={bookService.uploadBookCover}
+            onClose={() => {
+              setIsModalOpen(false);
+              loadBooks();
+            }}
+            onUploadCover={async (id, file) => {
+              const res = await bookService.uploadBookCover(id, file);
+              await loadBooks();
+              return res;
+            }}
             onUploadEpub={(id, file) => bookService.uploadEbookFile(id, file, 'epub')}
             onUploadPdf={(id, file) => bookService.uploadEbookFile(id, file, 'pdf')}
             onUploadAudio={bookService.uploadAudiobook}

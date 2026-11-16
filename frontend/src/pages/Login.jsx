@@ -35,7 +35,7 @@ export default function Login() {
     setError('');
     setOauthInProgress(true);
 
-    const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiBase = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:5000/api');
     window.location.href = `${apiBase}/auth/google`;
   };
 

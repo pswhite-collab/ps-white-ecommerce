@@ -1,6 +1,7 @@
 const errorHandler = (err, req, res, _next) => {
   const isMulterFileSizeError = err?.code === 'LIMIT_FILE_SIZE';
-  const statusCode = err.statusCode || (isMulterFileSizeError ? 413 : 500);
+  const isCastError = err?.name === 'CastError';
+  const statusCode = err.statusCode || (isMulterFileSizeError ? 413 : isCastError ? 404 : 500);
   const oauthRaw = err?.oauthError?.data;
   let oauthDetails = null;
 

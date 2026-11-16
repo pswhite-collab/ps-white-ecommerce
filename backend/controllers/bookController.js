@@ -1,6 +1,9 @@
+import mongoose from 'mongoose';
 import Book from '../models/Book.js';
 import Review from '../models/Review.js';
 import { bookMutationSchema } from '../utils/validation.js';
+
+const escapeRegex = (str = '') => String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const buildFilters = (query) => {
   const filters = { active: true };
@@ -15,13 +18,37 @@ const buildFilters = (query) => {
     filters.genres = query.genre;
   }
 
+  const conditions = [];
+
   if (query.search) {
-    const regex = new RegExp(query.search, 'i');
-    filters.$or = [{ title: regex }, { author: regex }, { description: regex }];
+    const escaped = escapeRegex(query.search.trim());
+    if (escaped) {
+      const regex = new RegExp(escaped, 'i');
+      conditions.push({ $or: [{ title: regex }, { author: regex }, { description: regex }] });
+    }
   }
 
   if (query.format && ['ebook', 'physical', 'audiobook'].includes(query.format)) {
     filters[`formats.${query.format}.available`] = true;
+  }
+
+  if (query.maxPrice) {
+    const max = Number(query.maxPrice);
+    if (!Number.isNaN(max) && max > 0) {
+      conditions.push({
+        $or: [
+          { 'formats.ebook.price': { $lte: max } },
+          { 'formats.physical.price': { $lte: max } },
+          { 'formats.audiobook.price': { $lte: max } },
+        ],
+      });
+    }
+  }
+
+  if (conditions.length === 1) {
+    Object.assign(filters, conditions[0]);
+  } else if (conditions.length > 1) {
+    filters.$and = conditions;
   }
 
   return filters;
@@ -65,8 +92,7 @@ export const getAllBooks = async (req, res, next) => {
           page,
           limit,
           total,
-          totalPages: Math.max(1, Math.ceil(total / limit)),
-          hasNextPage: skip + books.length < total,
+          totalPages: Math.ceil(total / limit) || 1,
         },
       },
     });
@@ -77,6 +103,10 @@ export const getAllBooks = async (req, res, next) => {
 
 export const getBookById = async (req, res, next) => {
   try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(404).json({ success: false, error: 'Book not found' });
+    }
+
     const book = await Book.findById(req.params.id);
     if (!book || !book.active) {
       return res.status(404).json({ success: false, error: 'Book not found' });
@@ -110,14 +140,8 @@ export const createBook = async (req, res, next) => {
       return res.status(400).json({ success: false, error: error.message });
     }
 
-    const created = await Book.create(value);
-
-    return res.status(201).json({
-      success: true,
-      data: {
-        book: created,
-      },
-    });
+    const book = await Book.create(value);
+    return res.status(201).json({ success: true, data: { book } });
   } catch (error) {
     return next(error);
   }
@@ -125,46 +149,60 @@ export const createBook = async (req, res, next) => {
 
 export const updateBook = async (req, res, next) => {
   try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(404).json({ success: false, error: 'Book not found' });
+    }
+
     const { error, value } = bookMutationSchema.validate(req.body);
     if (error) {
       return res.status(400).json({ success: false, error: error.message });
     }
 
-    const updated = await Book.findByIdAndUpdate(req.params.id, { $set: value }, { new: true });
+    const book = await Book.findByIdAndUpdate(req.params.id, value, {
+      new: true,
+      runValidators: true,
+    });
 
-    if (!updated) {
+    if (!book) {
+      return res.status(404).json({ success: false, error: 'Book not found' });
+    }
+
+    return res.json({ success: true, data: { book } });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const archiveBook = async (req, res, next) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(404).json({ success: false, error: 'Book not found' });
+    }
+
+    const book = await Book.findByIdAndUpdate(
+      req.params.id,
+      { active: false },
+      { new: true }
+    );
+
+    if (!book) {
       return res.status(404).json({ success: false, error: 'Book not found' });
     }
 
     return res.json({
       success: true,
-      data: {
-        book: updated,
-      },
+      message: 'Book archived successfully',
+      data: { book },
     });
   } catch (error) {
     return next(error);
   }
 };
 
-export const deleteBook = async (req, res, next) => {
+export const getGenres = async (_req, res, next) => {
   try {
-    const updated = await Book.findByIdAndUpdate(
-      req.params.id,
-      { $set: { active: false } },
-      { new: true }
-    );
-
-    if (!updated) {
-      return res.status(404).json({ success: false, error: 'Book not found' });
-    }
-
-    return res.json({
-      success: true,
-      data: {
-        message: 'Book archived successfully',
-      },
-    });
+    const genres = await Book.distinct('genres', { active: true });
+    return res.json({ success: true, data: { genres } });
   } catch (error) {
     return next(error);
   }
@@ -172,11 +210,13 @@ export const deleteBook = async (req, res, next) => {
 
 export const searchBooks = async (req, res, next) => {
   try {
-    const query = (req.query.q || req.query.search || '').trim();
+    const query = String(req.query.q || '').trim();
     if (!query) {
       return res.json({ success: true, data: { books: [] } });
     }
 
+    const escaped = escapeRegex(query);
+    const regex = new RegExp(escaped, 'i');
     let books = [];
     try {
       books = await Book.find(
@@ -186,7 +226,6 @@ export const searchBooks = async (req, res, next) => {
         .sort({ score: { $meta: 'textScore' } })
         .limit(20);
     } catch (_error) {
-      const regex = new RegExp(query, 'i');
       books = await Book.find({
         active: true,
         $or: [{ title: regex }, { author: regex }, { description: regex }],
@@ -209,4 +248,15 @@ export const getFeaturedBooks = async (_req, res, next) => {
   } catch (error) {
     return next(error);
   }
+};
+
+export default {
+  getAllBooks,
+  getBookById,
+  createBook,
+  updateBook,
+  archiveBook,
+  getGenres,
+  searchBooks,
+  getFeaturedBooks,
 };

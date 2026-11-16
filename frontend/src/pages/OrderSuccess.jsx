@@ -1,8 +1,23 @@
-import { Link, useParams } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import Button from '../components/common/Button';
+import { useCart } from '../context/CartContext';
+import paymentService from '../services/paymentService';
 
 export default function OrderSuccess() {
   const { orderId } = useParams();
+  const [searchParams] = useSearchParams();
+  const { clearCart } = useCart();
+
+  useEffect(() => {
+    const paymentIntent = searchParams.get('payment_intent');
+    const redirectStatus = searchParams.get('redirect_status');
+
+    if (orderId && paymentIntent && redirectStatus === 'succeeded') {
+      paymentService.confirmStripePayment(orderId, paymentIntent).catch(() => {});
+      clearCart();
+    }
+  }, [orderId, searchParams, clearCart]);
 
   return (
     <section className="mx-auto max-w-2xl rounded-card border border-taupe/30 bg-milk p-8 text-center shadow-soft">

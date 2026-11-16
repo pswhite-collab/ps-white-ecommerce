@@ -34,20 +34,10 @@ export default function Books() {
         genre: activeFilters.genre || undefined,
         sort: activeFilters.sort || undefined,
         search: debouncedSearch || undefined,
+        maxPrice: activeFilters.maxPrice && activeFilters.maxPrice < 5000 ? activeFilters.maxPrice : undefined,
       });
 
-      const filteredByPrice = response.books.filter((book) => {
-        const prices = [
-          book.formats?.ebook?.price,
-          book.formats?.physical?.price,
-          book.formats?.audiobook?.price,
-        ].filter((value) => typeof value === 'number');
-
-        const minPrice = prices.length ? Math.min(...prices) : 0;
-        return minPrice <= (activeFilters.maxPrice || 5000);
-      });
-
-      setBooks(filteredByPrice);
+      setBooks(response.books || []);
       setPagination(response.pagination || { page: 1, totalPages: 1 });
     } catch (_error) {
       setBooks([]);

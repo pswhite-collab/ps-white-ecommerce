@@ -75,6 +75,8 @@ export default function BookForm({
   submitting,
 }) {
   const [form, setForm] = useState(defaultForm);
+  const [createdBookId, setCreatedBookId] = useState(null);
+  const [uploadError, setUploadError] = useState('');
   const [coverFile, setCoverFile] = useState(null);
   const [epubFile, setEpubFile] = useState(null);
   const [pdfFile, setPdfFile] = useState(null);
@@ -156,29 +158,49 @@ export default function BookForm({
       },
     };
 
-    const saved = await onSubmit(payload);
+    setUploadError('');
+    let saved;
+    try {
+      if (createdBookId || initialValue?._id) {
+        const id = createdBookId || initialValue?._id;
+        saved = await onSubmit(payload, id);
+      } else {
+        saved = await onSubmit(payload);
+        if (saved?._id) {
+          setCreatedBookId(saved._id);
+        }
+      }
+    } catch (_submitErr) {
+      return;
+    }
 
     if (!saved?._id) {
       return;
     }
 
-    if (coverFile) {
-      await onUploadCover(saved._id, coverFile);
-    }
+    try {
+      if (coverFile) {
+        await onUploadCover(saved._id, coverFile);
+      }
 
-    if (epubFile) {
-      await onUploadEpub(saved._id, epubFile);
-    }
+      if (epubFile) {
+        await onUploadEpub(saved._id, epubFile);
+      }
 
-    if (pdfFile) {
-      await onUploadPdf(saved._id, pdfFile);
-    }
+      if (pdfFile) {
+        await onUploadPdf(saved._id, pdfFile);
+      }
 
-    if (audioFile) {
-      await onUploadAudio(saved._id, audioFile);
-    }
+      if (audioFile) {
+        await onUploadAudio(saved._id, audioFile);
+      }
 
-    onClose?.();
+      onClose?.();
+    } catch (uploadErr) {
+      setUploadError(
+        uploadErr?.response?.data?.error || uploadErr.message || 'File upload failed. You can retry.'
+      );
+    }
   };
 
   return (
@@ -394,6 +416,8 @@ export default function BookForm({
           ) : null}
         </div>
       </div>
+
+      {uploadError ? <p className="mt-3 text-sm font-medium text-error">{uploadError}</p> : null}
 
       <div className="mt-4 flex gap-2 border-t border-oat bg-milk pt-4">
         <Button type="submit" disabled={submitting}>{submitting ? 'Saving...' : 'Save Book'}</Button>
