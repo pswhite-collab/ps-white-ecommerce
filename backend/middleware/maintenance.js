@@ -8,14 +8,18 @@ export const checkMaintenanceMode = async (req, res, next) => {
       return next();
     }
 
-    // Paths allowed during maintenance mode
-    const path = req.path || req.originalUrl || '';
+    // Paths allowed during maintenance mode (check both originalUrl and path)
+    const rawPath = (req.originalUrl || req.path || '').split('?')[0];
+    const subPath = (req.path || '').split('?')[0];
     if (
-      path === '/health' ||
-      path === '/api/test' ||
-      path === '/api/settings/public' ||
-      path.startsWith('/api/admin') ||
-      path.startsWith('/api/payment/stripe/webhook')
+      rawPath === '/health' ||
+      rawPath === '/api/test' ||
+      rawPath === '/api/settings/public' ||
+      subPath === '/settings/public' ||
+      rawPath.startsWith('/api/admin') ||
+      subPath.startsWith('/admin') ||
+      rawPath.startsWith('/api/payment/stripe/webhook') ||
+      subPath.startsWith('/payment/stripe/webhook')
     ) {
       return next();
     }

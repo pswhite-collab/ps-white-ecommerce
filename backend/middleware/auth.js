@@ -30,4 +30,20 @@ export const protect = async (req, res, next) => {
   }
 };
 
+export const optionalAuth = async (req, _res, next) => {
+  try {
+    const token = extractToken(req);
+    if (token) {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findById(decoded.id).select('-password');
+      if (user) {
+        req.user = user;
+      }
+    }
+  } catch (error) {
+    // Continue without req.user if optional token is absent or invalid
+  }
+  return next();
+};
+
 export default protect;

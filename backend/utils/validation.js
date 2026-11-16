@@ -92,7 +92,9 @@ export const reviewSchema = Joi.object({
 
 export const bookmarkSchema = Joi.object({
   page: Joi.number().integer().min(0).required(),
+  title: Joi.string().allow('', null).max(100),
   note: Joi.string().allow('', null).max(500).default(''),
+  cfi: Joi.string().allow('', null),
 });
 
 export const readingSettingsSchema = Joi.object({
@@ -106,6 +108,9 @@ export const progressUpdateSchema = Joi.object({
   currentPage: Joi.number().integer().min(0).required(),
   totalPages: Joi.number().integer().min(0),
   readingMinutes: Joi.number().min(0).default(0),
+  readingTimeSeconds: Joi.number().min(0),
+  progressPercentage: Joi.number().min(0).max(100),
+  cfi: Joi.string().allow('', null),
 });
 
 export const orderCreateSchema = Joi.object({
@@ -115,6 +120,8 @@ export const orderCreateSchema = Joi.object({
         book: Joi.string().pattern(objectIdRegex).required(),
         format: Joi.string().valid('ebook', 'physical', 'audiobook').required(),
         quantity: Joi.number().integer().min(1).default(1),
+        price: Joi.number().min(0),
+        title: Joi.string().allow('', null),
       })
     )
     .min(1)

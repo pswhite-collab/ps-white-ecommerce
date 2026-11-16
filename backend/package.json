@@ -14,7 +14,8 @@
     "dev-token": "node utils/runDevToken.js",
     "migrate:physical": "node utils/migratePhysicalBooks.js",
     "init:settings": "node utils/initSettings.js",
-    "test:smoke:deep": "node utils/deepSmokeTest.js"
+    "test:smoke:deep": "node utils/deepSmokeTest.js",
+    "test:api": "node tests/runApiTests.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

@@ -151,13 +151,50 @@ export const createStripeIntent = async (req, res, next) => {
     const amount = Math.round(Number(order.total || 0) * 100);
     const currency = (order.currency || 'usd').toLowerCase();
 
+    // Check if order already has an active payment intent (idempotent)
+    if (order.payment?.transactionId) {
+      const existingId = order.payment.transactionId;
+      if (stripeClient && existingId.startsWith('pi_') && !existingId.startsWith('pi_simulated_')) {
+        try {
+          const existingIntent = await stripeClient.paymentIntents.retrieve(existingId);
+          if (existingIntent && existingIntent.status !== 'canceled') {
+            return res.json({
+              success: true,
+              data: {
+                clientSecret: existingIntent.client_secret,
+                paymentIntentId: existingIntent.id,
+              },
+            });
+          }
+        } catch (retrieveError) {
+          // If retrieve fails (e.g. invalid in current key context), create a fresh one
+        }
+      } else if (!stripeClient || existingId.startsWith('pi_simulated_') || existingId.startsWith('simulated_')) {
+        return res.json({
+          success: true,
+          data: {
+            clientSecret: `simulated_secret_${order._id}`,
+            paymentIntentId: existingId,
+          },
+        });
+      }
+    }
+
     if (!stripeClient) {
       // In local dev without keys, provide simulated secret for offline testing
+      const simId = `pi_simulated_${order._id}`;
+      order.payment = {
+        ...order.payment,
+        method: 'stripe',
+        transactionId: simId,
+      };
+      await order.save();
+
       return res.json({
         success: true,
         data: {
           clientSecret: `simulated_secret_${order._id}`,
-          paymentIntentId: `pi_simulated_${order._id}`,
+          paymentIntentId: simId,
         },
       });
     }
@@ -217,6 +254,10 @@ export const confirmStripePayment = async (req, res, next) => {
 
     if (!intentId || (!intentId.startsWith('pi_') && !intentId.startsWith('simulated_'))) {
       return res.status(400).json({ success: false, error: 'Valid paymentIntentId (pi_...) is required' });
+    }
+
+    if (isProduction && (intentId.startsWith('simulated_') || intentId.startsWith('pi_simulated_'))) {
+      return res.status(400).json({ success: false, error: 'Simulated payments are not permitted in production' });
     }
 
     const order = await Order.findById(orderId);

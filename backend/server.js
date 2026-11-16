@@ -166,16 +166,22 @@ app.use((req, res) => {
 
 app.use(errorHandler);
 
-const startServer = async () => {
+export const startServer = async () => {
   try {
     await connectDB();
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
+    return server;
   } catch (error) {
     console.error('Server startup failed:', error.message);
     process.exit(1);
   }
 };
 
-startServer();
+if (process.env.NODE_ENV !== 'test' && !process.env.TEST_IN_PROCESS) {
+  startServer();
+}
+
+export { app };
+export default app;

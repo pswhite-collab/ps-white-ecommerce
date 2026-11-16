@@ -73,7 +73,7 @@ const resolveSort = (sort) => {
 export const getAllBooks = async (req, res, next) => {
   try {
     const page = Math.max(1, Number.parseInt(req.query.page || '1', 10));
-    const limit = Math.min(50, Math.max(1, Number.parseInt(req.query.limit || '10', 10)));
+    const limit = Math.min(50, Math.max(1, Number.parseInt(req.query.limit || '8', 10)));
     const skip = (page - 1) * limit;
 
     const filters = buildFilters(req.query);
@@ -108,7 +108,12 @@ export const getBookById = async (req, res, next) => {
     }
 
     const book = await Book.findById(req.params.id);
-    if (!book || !book.active) {
+    if (!book) {
+      return res.status(404).json({ success: false, error: 'Book not found' });
+    }
+
+    const isAdmin = req.user && ['admin', 'super_admin'].includes(req.user.role);
+    if (!book.active && !isAdmin) {
       return res.status(404).json({ success: false, error: 'Book not found' });
     }
 
@@ -199,6 +204,29 @@ export const archiveBook = async (req, res, next) => {
   }
 };
 
+export const deleteBook = async (req, res, next) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(404).json({ success: false, error: 'Book not found' });
+    }
+
+    const book = await Book.findByIdAndDelete(req.params.id);
+    if (!book) {
+      return res.status(404).json({ success: false, error: 'Book not found' });
+    }
+
+    await Review.deleteMany({ book: book._id });
+
+    return res.json({
+      success: true,
+      message: 'Book deleted successfully',
+      data: { id: book._id },
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 export const getGenres = async (_req, res, next) => {
   try {
     const genres = await Book.distinct('genres', { active: true });
@@ -255,6 +283,7 @@ export default {
   getBookById,
   createBook,
   updateBook,
+  deleteBook,
   archiveBook,
   getGenres,
   searchBooks,

@@ -32,6 +32,8 @@ const refreshBookReviewStats = async (bookId) => {
   });
 };
 
+const escapeRegex = (string = '') => String(string).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const parsePagination = (req) => {
   const page = Math.max(1, Number.parseInt(req.query.page || '1', 10));
   const limit = Math.min(50, Math.max(1, Number.parseInt(req.query.limit || '10', 10)));
@@ -114,7 +116,7 @@ export const getAllReviewsAdmin = async (req, res, next) => {
     }
 
     if (search && String(search).trim()) {
-      const regex = new RegExp(String(search).trim(), 'i');
+      const regex = new RegExp(escapeRegex(String(search).trim()), 'i');
       filter.$or = [{ title: regex }, { comment: regex }];
     }
 

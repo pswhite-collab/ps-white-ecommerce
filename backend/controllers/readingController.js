@@ -1,3 +1,6 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import mongoose from 'mongoose';
 import Book from '../models/Book.js';
 import Order from '../models/Order.js';
@@ -479,6 +482,69 @@ export const getReaderMetadata = async (req, res, next) => {
         chapterCount: 0,
       },
     });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export const downloadBookFile = async (req, res, next) => {
+  try {
+    const { bookId, format } = req.params;
+    const ownsBook = await userOwnsBook(req.user._id, bookId);
+    if (!ownsBook) {
+      return res.status(403).json({ success: false, error: 'You need to purchase this book first' });
+    }
+    const book = await Book.findById(bookId);
+    if (!book) {
+      return res.status(404).json({ success: false, error: 'Book not found' });
+    }
+
+    const uploadsDir = path.resolve(__dirname, '../uploads');
+    let targetFile = null;
+    let fileName = `${book.title}.${format}`;
+
+    if (format === 'epub') {
+      targetFile = path.join(uploadsDir, 'sample-book.epub');
+    } else if (format === 'pdf') {
+      targetFile = path.join(uploadsDir, 'sample-book.pdf');
+    } else if (format === 'mp3' || format === 'audio') {
+      targetFile = path.join(uploadsDir, 'sample-audio.mp3');
+      fileName = `${book.title}.mp3`;
+    }
+
+    if (targetFile && fs.existsSync(targetFile)) {
+      return res.download(targetFile, fileName);
+    }
+
+    return res.status(404).json({ success: false, error: 'File not available for download' });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const getSampleFile = async (req, res, next) => {
+  try {
+    const { format } = req.params;
+    const uploadsDir = path.resolve(__dirname, '../uploads');
+    let targetFile = null;
+
+    if (format === 'epub') {
+      targetFile = path.join(uploadsDir, 'sample-book.epub');
+    } else if (format === 'pdf') {
+      targetFile = fs.existsSync(path.join(uploadsDir, 'sample-preview.pdf'))
+        ? path.join(uploadsDir, 'sample-preview.pdf')
+        : path.join(uploadsDir, 'sample-book.pdf');
+    } else if (format === 'mp3' || format === 'audio') {
+      targetFile = path.join(uploadsDir, 'sample-audio.mp3');
+    }
+
+    if (targetFile && fs.existsSync(targetFile)) {
+      return res.sendFile(targetFile);
+    }
+    return res.status(404).json({ success: false, error: 'Sample file not found' });
   } catch (error) {
     return next(error);
   }

@@ -11,8 +11,12 @@ import {
   getDashboardReadingStats,
   getReadingAnalytics,
 } from '../controllers/adminController.js';
+import { getSettings, updateSettings } from '../controllers/settingsController.js';
 
 const router = Router();
+
+router.get('/settings', protect, adminProtect, getSettings);
+router.put('/settings', protect, adminProtect, updateSettings);
 
 router.get('/dashboard/stats', protect, adminProtect, getAdminDashboard);
 router.get('/dashboard/reading-stats', protect, adminProtect, getDashboardReadingStats);

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { protect } from '../middleware/auth.js';
+import { optionalAuth, protect } from '../middleware/auth.js';
 import adminProtect from '../middleware/adminAuth.js';
 import { uploadAudio, uploadCover, uploadEbook } from '../middleware/upload.js';
 import {
@@ -23,7 +23,7 @@ const router = Router();
 router.get('/featured', getFeaturedBooks);
 router.get('/search', searchBooks);
 router.get('/', getAllBooks);
-router.get('/:id', getBookById);
+router.get('/:id', optionalAuth, getBookById);
 
 router.post('/', protect, adminProtect, createBook);
 router.put('/:id', protect, adminProtect, updateBook);
