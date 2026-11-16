@@ -25,7 +25,11 @@ api.interceptors.response.use(
       console.warn('Unauthorized API request detected.');
     }
 
-    const message = error.response?.data?.message || error.message || 'API request failed';
+    const message =
+      error.response?.data?.error ||
+      error.response?.data?.message ||
+      error.message ||
+      'API request failed';
     return Promise.reject(new Error(message));
   }
 );

@@ -24,6 +24,15 @@ const blogPostSchema = new mongoose.Schema(
     category: { type: String, trim: true, index: true },
     published: { type: Boolean, default: false, index: true },
     publishDate: { type: Date },
+    commentsEnabled: { type: Boolean, default: true },
+    comments: [
+      {
+        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        name: { type: String, trim: true },
+        comment: { type: String, trim: true, maxlength: 1000 },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
   },
   {
     timestamps: true,

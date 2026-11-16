@@ -1,11 +1,16 @@
 import { NavLink } from 'react-router-dom';
 
 const menuItems = [
-  { label: 'Dashboard', to: '/admin' },
+  { label: 'Dashboard', to: '/admin/dashboard' },
   { label: 'Orders', to: '/admin/orders' },
   { label: 'Books', to: '/admin/manage-books' },
   { label: 'Customers', to: '/admin/customers' },
-  { label: 'Analytics', to: '/admin/analytics' },
+  { label: 'Reading Analytics', to: '/admin/reading-analytics' },
+  { label: 'Quote of the Day', to: '/admin/quotes' },
+  { label: 'Reviews', to: '/admin/reviews' },
+  { label: 'Blog', to: '/admin/blog' },
+  { label: 'Newsletter', to: '/admin/newsletter' },
+  { label: 'Settings', to: '/admin/settings' },
 ];
 
 export default function Sidebar() {
@@ -17,11 +22,10 @@ export default function Sidebar() {
           <NavLink
             key={item.label}
             to={item.to}
-            end={item.to === '/admin'}
             className={({ isActive }) =>
               [
                 'rounded-card px-3 py-2 text-sm transition-colors duration-smooth ease-smooth',
-                isActive ? 'bg-mocha text-milk' : 'text-milk/80 hover:bg-mocha/40 hover:text-milk',
+                isActive ? 'bg-mocha text-milk' : 'text-taupe hover:bg-mocha/50 hover:text-milk',
               ].join(' ')
             }
           >

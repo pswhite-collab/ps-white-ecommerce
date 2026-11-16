@@ -1,13 +1,15 @@
 import { Router } from 'express';
+import { protect } from '../middleware/auth.js';
+import {
+  confirmStripePayment,
+  createStripeIntent,
+  stripeWebhook,
+} from '../controllers/paymentController.js';
 
 const router = Router();
 
-router.post('/razorpay/create-order', (_req, res) => {
-  return res.status(501).json({ message: 'Razorpay integration placeholder for Day 3' });
-});
-
-router.post('/stripe/create-intent', (_req, res) => {
-  return res.status(501).json({ message: 'Stripe integration placeholder for Day 3' });
-});
+router.post('/stripe/create-intent', protect, createStripeIntent);
+router.post('/stripe/confirm', protect, confirmStripePayment);
+router.post('/stripe/webhook', stripeWebhook);
 
 export default router;

@@ -3,11 +3,12 @@ import mongoose from 'mongoose';
 const connectDB = async () => {
   if (!process.env.MONGODB_URI) {
     console.warn('MONGODB_URI is not set. Skipping MongoDB connection.');
-    return;
+    return false;
   }
 
   try {
     mongoose.set('strictQuery', true);
+    mongoose.set('bufferCommands', false);
 
     const connection = await mongoose.connect(process.env.MONGODB_URI, {
       serverSelectionTimeoutMS: 10000,
@@ -15,11 +16,10 @@ const connectDB = async () => {
     });
 
     console.log(`MongoDB connected: ${connection.connection.host}`);
+    return true;
   } catch (error) {
     console.error('MongoDB connection failed:', error.message);
-    if (process.env.NODE_ENV === 'production') {
-      process.exit(1);
-    }
+    throw error;
   }
 };
 
