@@ -9,6 +9,9 @@
     "dev": "node server.js",
     "seed:admin": "node utils/seedAdmin.js",
     "seed": "node utils/seedDatabase.js",
+    "seed:demo": "node utils/runSeedDemo.js",
+    "seed:reset-local": "node utils/runResetLocal.js",
+    "dev-token": "node utils/runDevToken.js",
     "migrate:physical": "node utils/migratePhysicalBooks.js",
     "init:settings": "node utils/initSettings.js",
     "test:smoke:deep": "node utils/deepSmokeTest.js"

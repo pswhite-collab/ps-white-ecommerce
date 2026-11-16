@@ -5,8 +5,11 @@ backend/node_modules/
 
 # Environment
 .env
-.env.local
+.env.*
 *.env
+*.env.*
+!*.env.example
+!*.env.production.example
 
 # Build
 frontend/dist/
