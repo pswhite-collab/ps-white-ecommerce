@@ -26,6 +26,7 @@ import readerRoutes from './routes/reader.js';
 import newsletterRoutes from './routes/newsletter.js';
 import quoteRoutes from './routes/quotes.js';
 import settingsRoutes from './routes/settings.js';
+import { getAllowedOrigins } from './config/clientUrl.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -35,13 +36,18 @@ const PORT = process.env.PORT || 5000;
 const isProduction = process.env.NODE_ENV === 'production';
 const frontendDistPath = path.resolve(__dirname, '../frontend/dist');
 
-const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
-  .split(',')
-  .map((origin) => origin.trim())
-  .filter(Boolean);
+// Enable trust proxy for accurate IP determination behind reverse proxies (Vercel, Nginx, Cloudflare)
+const trustProxyEnv = process.env.TRUST_PROXY;
+const trustProxyValue = trustProxyEnv !== undefined
+  ? (trustProxyEnv === 'true' ? true : (trustProxyEnv === 'false' ? false : Number(trustProxyEnv) || 1))
+  : 1;
+app.set('trust proxy', trustProxyValue);
+
+const allowedOrigins = getAllowedOrigins();
 
 const helmetConfig = isProduction
   ? {
+      referrerPolicy: { policy: 'no-referrer' },
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],
@@ -84,6 +90,7 @@ const helmetConfig = isProduction
       },
     }
   : {
+      referrerPolicy: { policy: 'no-referrer' },
       contentSecurityPolicy: false,
       crossOriginEmbedderPolicy: false,
     };
