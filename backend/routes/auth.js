@@ -3,6 +3,7 @@ import passport from 'passport';
 import { protect } from '../middleware/auth.js';
 import { authLimiter, oauthCallbackLimiter } from '../middleware/rateLimiter.js';
 import generateToken from '../utils/generateToken.js';
+import { getPrimaryClientUrl } from '../config/clientUrl.js';
 import {
   forgotPassword,
   getCurrentUser,
@@ -31,17 +32,31 @@ router.get(
 router.get(
   '/google/callback',
   oauthCallbackLimiter,
-  passport.authenticate('google-customer', {
-    session: false,
-    failureRedirect: `${process.env.CLIENT_URL || 'http://localhost:5173'}/login?error=oauth_failed`,
-  }),
-  (req, res) => {
-    const token = generateToken(req.user._id, { role: req.user.role });
-    const redirectUrl = new URL(
-      `${process.env.CLIENT_URL || 'http://localhost:5173'}/auth/google/success`
-    );
-    redirectUrl.searchParams.set('token', token);
-    res.redirect(redirectUrl.toString());
+  (req, res, next) => {
+    passport.authenticate('google-customer', { session: false }, (err, user) => {
+      const primaryClient = getPrimaryClientUrl();
+
+      if (err || !user) {
+        const rawCode = err?.message?.toLowerCase() || '';
+        let errorCode = 'oauth_failed';
+
+        if (rawCode.includes('registration_closed') || rawCode.includes('registration is currently disabled')) {
+          errorCode = 'registration_closed';
+        } else if (rawCode.includes('account_disabled')) {
+          errorCode = 'account_disabled';
+        } else if (rawCode.includes('access_denied')) {
+          errorCode = 'access_denied';
+        }
+
+        const redirectUrl = new URL('/login', primaryClient);
+        redirectUrl.searchParams.set('error', errorCode);
+        return res.redirect(redirectUrl.toString());
+      }
+
+      const token = generateToken(user._id, { role: user.role });
+      // Defect H: Send token in fragment to prevent leaking into server logs / browser history
+      return res.redirect(`${primaryClient}/auth/google/success#token=${encodeURIComponent(token)}`);
+    })(req, res, next);
   }
 );
 router.get('/verify-email/:token', verifyEmail);

@@ -15,6 +15,7 @@
     "dev-token": "node utils/runDevToken.js",
     "migrate:physical": "node utils/migratePhysicalBooks.js",
     "init:settings": "node utils/initSettings.js",
+    "check:env": "node utils/checkEnv.js",
     "test:smoke:deep": "node utils/deepSmokeTest.js",
     "test:api": "node tests/runApiTests.js"
   },

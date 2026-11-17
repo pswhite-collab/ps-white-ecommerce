@@ -27,6 +27,7 @@ import newsletterRoutes from './routes/newsletter.js';
 import quoteRoutes from './routes/quotes.js';
 import settingsRoutes from './routes/settings.js';
 import { getAllowedOrigins } from './config/clientUrl.js';
+import { checkEnv } from './utils/checkEnv.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -175,6 +176,17 @@ app.use(errorHandler);
 
 export const startServer = async () => {
   try {
+    if (isProduction) {
+      const { valid, errors } = checkEnv(true);
+      if (!valid) {
+        console.error('[PS White Auth] FATAL: Production environment validation failed:');
+        for (const err of errors) {
+          console.error(`  - ${err}`);
+        }
+        process.exit(1);
+      }
+    }
+
     await connectDB();
     const server = app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);

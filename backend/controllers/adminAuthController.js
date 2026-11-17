@@ -1,5 +1,6 @@
 import AdminWhitelist from '../models/AdminWhitelist.js';
 import generateToken from '../utils/generateToken.js';
+import { getPrimaryClientUrl } from '../config/clientUrl.js';
 
 export const googleAuth = (_req, _res, next) => {
   next();
@@ -7,16 +8,15 @@ export const googleAuth = (_req, _res, next) => {
 
 export const googleCallback = async (req, res, next) => {
   try {
+    const primaryClient = getPrimaryClientUrl();
     if (!req.user) {
-      return res.status(401).json({ success: false, error: 'Google OAuth failed' });
+      const redirectUrl = new URL('/admin/login', primaryClient);
+      redirectUrl.searchParams.set('error', 'access_denied');
+      return res.redirect(redirectUrl.toString());
     }
 
     const token = generateToken(req.user._id, { role: req.user.role });
-
-    const redirectUrl = new URL(`${process.env.CLIENT_URL || 'http://localhost:5173'}/admin/login`);
-    redirectUrl.searchParams.set('token', token);
-
-    return res.redirect(redirectUrl.toString());
+    return res.redirect(`${primaryClient}/admin/login#token=${encodeURIComponent(token)}`);
   } catch (error) {
     return next(error);
   }
