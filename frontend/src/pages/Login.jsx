@@ -1,8 +1,26 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import Button from '../components/common/Button';
 import Input from '../components/common/Input';
 import { useAuth } from '../context/AuthContext';
+import { getCustomerGoogleAuthUrl } from '../utils/apiConfig';
+
+const mapOAuthError = (errorCode) => {
+  switch (errorCode) {
+    case 'oauth_failed':
+      return 'Google sign-in could not be completed. Please try again.';
+    case 'registration_closed':
+      return 'New user registration is currently disabled.';
+    case 'account_disabled':
+      return 'This account has been disabled. Please contact support.';
+    case 'access_denied':
+      return 'Access denied. You are not authorized to sign in.';
+    case 'rate_limited':
+      return 'Too many sign-in attempts. Please wait a few minutes before trying again.';
+    default:
+      return '';
+  }
+};
 
 export default function Login() {
   const navigate = useNavigate();
@@ -10,23 +28,37 @@ export default function Login() {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(
-    searchParams.get('error') === 'oauth_failed'
-      ? 'Google sign-in failed. Please try again.'
-      : ''
-  );
+  const [error, setError] = useState(mapOAuthError(searchParams.get('error')));
   const [loading, setLoading] = useState(false);
   const [oauthInProgress, setOauthInProgress] = useState(false);
+
+  useEffect(() => {
+    const errorCode = searchParams.get('error');
+    if (errorCode) {
+      setError(mapOAuthError(errorCode));
+    }
+
+    // Defect G: Reset oauthInProgress when page is restored from bfcache (Back button)
+    const handlePageShow = (event) => {
+      if (event.persisted) {
+        setOauthInProgress(false);
+      }
+    };
+
+    window.addEventListener('pageshow', handlePageShow);
+    return () => window.removeEventListener('pageshow', handlePageShow);
+  }, [searchParams]);
 
   const handleGoogleLogin = () => {
     if (oauthInProgress) {
       return;
     }
 
+    // Defect G: Short 5-second cooldown to avoid button freezing while server rate limits protect endpoints
     const lastAttempt = localStorage.getItem('lastGoogleLoginAttempt');
     const now = Date.now();
 
-    if (lastAttempt && now - Number.parseInt(lastAttempt, 10) < 60 * 1000) {
+    if (lastAttempt && now - Number.parseInt(lastAttempt, 10) < 5 * 1000) {
       setError('Please wait a moment before trying Google sign-in again.');
       return;
     }
@@ -35,8 +67,7 @@ export default function Login() {
     setError('');
     setOauthInProgress(true);
 
-    const apiBase = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:5000/api');
-    window.location.href = `${apiBase}/auth/google`;
+    window.location.href = getCustomerGoogleAuthUrl();
   };
 
   const onSubmit = async (event) => {
@@ -64,7 +95,7 @@ export default function Login() {
         type="button"
         onClick={handleGoogleLogin}
         disabled={oauthInProgress}
-        className="mt-6 flex w-full items-center justify-center gap-2 rounded-card border border-taupe/50 bg-milk px-4 py-3 text-sm font-medium text-charcoal transition-colors hover:bg-oat"
+        className="mt-6 flex w-full items-center justify-center gap-2 rounded-card border border-taupe/50 bg-milk px-4 py-3 text-sm font-medium text-charcoal transition-colors hover:bg-oat disabled:opacity-60"
       >
         <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-milk text-xs text-mocha">G</span>
         {oauthInProgress ? 'Redirecting to Google...' : 'Sign in with Google'}

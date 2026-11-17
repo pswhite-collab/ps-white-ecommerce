@@ -9,7 +9,15 @@ export default function GoogleAuthSuccess() {
 
   useEffect(() => {
     const finalizeGoogleLogin = async () => {
-      const token = searchParams.get('token');
+      // Defect H: Read token from fragment (#token=) first, with backwards-compatible query string fallback
+      const hash = window.location.hash;
+      const hashParams = new URLSearchParams(hash.startsWith('#') ? hash.slice(1) : hash);
+      const token = hashParams.get('token') || searchParams.get('token');
+
+      // Immediately strip the token from the visible URL to prevent history and referrer leakage
+      if (window.location.hash || window.location.search) {
+        window.history.replaceState(null, '', window.location.pathname);
+      }
 
       if (!token) {
         navigate('/login?error=oauth_failed', { replace: true });
