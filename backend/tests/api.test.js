@@ -723,7 +723,7 @@ describe('Backend API Test Suite (pswhite_local)', () => {
     });
 
     it('5.7.4 Admin can view customer list with order summaries and spend totals', async () => {
-      const res = await apiRequest('/api/admin/customers', {
+      const res = await apiRequest('/api/admin/customers?limit=50', {
         headers: { Authorization: `Bearer ${adminToken}` },
       });
       assert.equal(res.status, 200);
