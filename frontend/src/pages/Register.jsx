@@ -4,6 +4,7 @@ import Button from '../components/common/Button';
 import Input from '../components/common/Input';
 import { useAuth } from '../context/AuthContext';
 import { useSiteSettings } from '../context/SiteSettingsContext';
+import { getCustomerGoogleAuthUrl } from '../utils/apiConfig';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -34,8 +35,7 @@ export default function Register() {
 
   const onChange = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
   const handleGoogleSignup = () => {
-    const apiBase = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:5000/api');
-    window.location.href = `${apiBase}/auth/google`;
+    window.location.href = getCustomerGoogleAuthUrl();
   };
 
   const onSubmit = async (event) => {
