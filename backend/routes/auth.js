@@ -23,11 +23,20 @@ router.post('/logout', logout);
 router.get(
   '/google',
   authLimiter,
-  passport.authenticate('google-customer', {
-    scope: ['profile', 'email'],
-    prompt: 'select_account',
-    session: false,
-  })
+  (req, res, next) => {
+    if (!passport._strategies || !passport._strategies['google-customer']) {
+      const primaryClient = getPrimaryClientUrl();
+      const redirectUrl = new URL('/login', primaryClient);
+      redirectUrl.searchParams.set('error', 'oauth_not_configured');
+      return res.redirect(redirectUrl.toString());
+    }
+
+    return passport.authenticate('google-customer', {
+      scope: ['profile', 'email'],
+      prompt: 'select_account',
+      session: false,
+    })(req, res, next);
+  }
 );
 router.get(
   '/google/callback',

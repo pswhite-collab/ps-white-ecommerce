@@ -19,10 +19,19 @@ router.get(
   '/google',
   authLimiter,
   googleAuth,
-  passport.authenticate('google-admin', {
-    scope: ['profile', 'email'],
-    prompt: 'select_account',
-  })
+  (req, res, next) => {
+    if (!passport._strategies || !passport._strategies['google-admin']) {
+      const primaryClient = getPrimaryClientUrl();
+      const redirectUrl = new URL('/admin/login', primaryClient);
+      redirectUrl.searchParams.set('error', 'oauth_not_configured');
+      return res.redirect(redirectUrl.toString());
+    }
+
+    return passport.authenticate('google-admin', {
+      scope: ['profile', 'email'],
+      prompt: 'select_account',
+    })(req, res, next);
+  }
 );
 
 router.get(

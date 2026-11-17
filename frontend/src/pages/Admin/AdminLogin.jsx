@@ -14,6 +14,8 @@ const mapAdminOAuthError = (errorCode) => {
       return 'Too many authentication attempts. Please wait a few minutes before trying again.';
     case 'oauth_failed':
       return 'Google sign-in could not be completed. Please try again.';
+    case 'oauth_not_configured':
+      return 'Google sign-in is not configured on this server. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET.';
     default:
       return '';
   }

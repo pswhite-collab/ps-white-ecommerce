@@ -9,6 +9,8 @@ const mapOAuthError = (errorCode) => {
   switch (errorCode) {
     case 'oauth_failed':
       return 'Google sign-in could not be completed. Please try again.';
+    case 'oauth_not_configured':
+      return 'Google sign-in is not configured on this server. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET.';
     case 'registration_closed':
       return 'New user registration is currently disabled.';
     case 'account_disabled':
