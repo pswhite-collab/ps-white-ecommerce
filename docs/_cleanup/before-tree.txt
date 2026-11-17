@@ -1,0 +1,203 @@
+=== BEFORE CLEANUP REPO SNAPSHOT ===
+
+Date: 2026-11-17T07:12:35.614Z
+Total Non-Ignored Files: 219
+Total Size: 2.14 MB (2239419 bytes)
+
+=== ROOT FILES ===
+- .gitignore
+- ADMIN_GUIDE.md
+- API_DOCUMENTATION.md
+- BUG_TRACKER.md
+- CHANGES.md
+- COLOR_PALETTE_REFERENCE.md
+- DEPLOYMENT_GUIDE.md
+- ecosystem.config.js
+- GOOGLE_SIGNIN_REPORT.md
+- HOW_TO_RUN_LOCAL_TESTS.md
+- MAINTENANCE_GUIDE.md
+- package-lock.json
+- package.json
+- playwright.config.js
+- PRD_V2_IMPLEMENTATION_TRACKER.md
+- README.md
+- test-header.js
+- TESTING_CHECKLIST.md
+- TEST_REPORT.md
+- USER_GUIDE.md
+
+=== DIRECTORY TREE (DEPTH <= 3, EXCL node_modules, .git) ===
+[FILE] .gitignore (340 B)
+[FILE] ADMIN_GUIDE.md (1141 B)
+[FILE] API_DOCUMENTATION.md (3829 B)
+[DIR]  backend
+  [FILE] .env (1256 B)
+  [FILE] .env.example (1141 B)
+  [FILE] .env.local-test (975 B)
+  [FILE] .env.production.example (959 B)
+  [FILE] backend-dev.err.log (866 B)
+  [FILE] backend-dev.out.log (61 B)
+  [FILE] backend-restart.err.log (0 B)
+  [FILE] backend-restart.out.log (28 B)
+  [FILE] backend-start.err.log (0 B)
+  [FILE] backend-start.out.log (28 B)
+  [DIR]  config
+    [FILE] clientUrl.js (1656 B)
+    [FILE] cloudinary.js (242 B)
+    [FILE] db.js (854 B)
+    [FILE] env.js (837 B)
+    [FILE] passport.js (7557 B)
+    [FILE] resend.js (1264 B)
+  [DIR]  controllers
+    [FILE] adminAuthController.js (1777 B)
+    [FILE] adminController.js (13738 B)
+    [FILE] authController.js (7149 B)
+    [FILE] blogController.js (5037 B)
+    [FILE] bookController.js (7369 B)
+    [FILE] newsletterController.js (3432 B)
+    [FILE] orderController.js (17374 B)
+    [FILE] paymentController.js (10939 B)
+    [FILE] quoteController.js (5042 B)
+    [FILE] readingController.js (15863 B)
+    [FILE] reviewController.js (9046 B)
+    [FILE] settingsController.js (2681 B)
+    [FILE] uploadController.js (8022 B)
+  [DIR]  middleware
+    [FILE] adminAuth.js (783 B)
+    [FILE] auth.js (1322 B)
+    [FILE] errorHandler.js (1169 B)
+    [FILE] maintenance.js (1668 B)
+    [FILE] rateLimiter.js (1797 B)
+    [FILE] readerDownloadLimit.js (1592 B)
+    [FILE] upload.js (1416 B)
+  [DIR]  models
+    [FILE] AdminWhitelist.js (533 B)
+    [FILE] BlogPost.js (1347 B)
+    [FILE] Book.js (3519 B)
+    [FILE] Newsletter.js (466 B)
+    [FILE] Order.js (4221 B)
+    [FILE] Quote.js (1453 B)
+    [FILE] ReadingProgress.js (1871 B)
+    [FILE] Review.js (1384 B)
+    [FILE] Settings.js (1114 B)
+    [FILE] User.js (2911 B)
+  [FILE] package-lock.json (83282 B)
+  [FILE] package.json (1345 B)
+  [DIR]  routes
+    [FILE] admin.js (1293 B)
+    [FILE] adminAuth.js (2610 B)
+    [FILE] auth.js (2609 B)
+    [FILE] blog.js (731 B)
+    [FILE] books.js (1227 B)
+    [FILE] cart.js (279 B)
+    [FILE] newsletter.js (679 B)
+    [FILE] orders.js (863 B)
+    [FILE] payment.js (429 B)
+    [FILE] quotes.js (660 B)
+    [FILE] reader.js (681 B)
+    [FILE] reading.js (971 B)
+    [FILE] reviews.js (867 B)
+    [FILE] settings.js (443 B)
+  [FILE] runLocalTestServer.js (59 B)
+  [FILE] server.err.log (0 B)
+  [FILE] server.js (6370 B)
+  [FILE] server.out.log (0 B)
+  [DIR]  tests
+    [FILE] api.test.js (30071 B)
+    [FILE] apiConfig.test.js (2166 B)
+    [FILE] clientUrl.test.js (2088 B)
+    [FILE] googleAuthBackend.test.js (8007 B)
+    [FILE] rateLimiter.test.js (3131 B)
+    [FILE] runApiTests.js (553 B)
+  [DIR]  uploads
+    [FILE] sample-audio.mp3 (4170 B)
+    [FILE] sample-book.epub (3781 B)
+    [FILE] sample-book.pdf (603 B)
+  [DIR]  utils
+    [FILE] checkEnv.js (2561 B)
+    [FILE] deepSmokeTest.js (21713 B)
+    [FILE] devToken.js (1438 B)
+    [FILE] email.js (2975 B)
+    [FILE] fileValidation.js (2702 B)
+    [FILE] generateSampleFiles.js (8648 B)
+    [FILE] generateSignedUrl.js (585 B)
+    [FILE] generateToken.js (1137 B)
+    [FILE] initSettings.js (631 B)
+    [FILE] migratePhysicalBooks.js (1047 B)
+    [FILE] resetLocalDatabase.js (883 B)
+    [FILE] runDevToken.js (333 B)
+    [FILE] runResetLocal.js (72 B)
+    [FILE] runSeedDemo.js (254 B)
+    [FILE] seedAdmin.js (658 B)
+    [FILE] seedDatabase.js (25607 B)
+    [FILE] siteSettings.js (1864 B)
+    [FILE] validation.js (6688 B)
+[FILE] BUG_TRACKER.md (1434 B)
+[FILE] CHANGES.md (3704 B)
+[FILE] COLOR_PALETTE_REFERENCE.md (1642 B)
+[FILE] DEPLOYMENT_GUIDE.md (1245 B)
+[DIR]  docs
+  [FILE] DEMO_DATA.md (5910 B)
+  [FILE] GOOGLE_SIGNIN_SETUP.md (4916 B)
+  [DIR]  _cleanup
+[DIR]  e2e
+  [FILE] journey1-guest-browsing.spec.js (2463 B)
+  [FILE] journey10-google-auth.spec.js (4726 B)
+  [FILE] journey2-cart.spec.js (2580 B)
+  [FILE] journey3-auth.spec.js (3820 B)
+  [FILE] journey4-checkout-stripe.spec.js (3934 B)
+  [FILE] journey5-reading.spec.js (2084 B)
+  [FILE] journey6-reviews.spec.js (1759 B)
+  [FILE] journey7-admin.spec.js (1676 B)
+  [FILE] journey8-responsive-header.spec.js (2754 B)
+  [FILE] journey9-accessibility.spec.js (1928 B)
+[FILE] ecosystem.config.js (213 B)
+[DIR]  frontend
+  [FILE] .env (309 B)
+  [FILE] .env.example (174 B)
+  [FILE] .env.local (175 B)
+  [FILE] .env.production.example (135 B)
+  [DIR]  dist
+    [DIR]  assets
+    [FILE] index.html (2051 B)
+    [FILE] robots.txt (67 B)
+    [FILE] sitemap.xml (737 B)
+  [FILE] index.html (1793 B)
+  [FILE] package-lock.json (126890 B)
+  [FILE] package.json (847 B)
+  [FILE] postcss.config.js (82 B)
+  [DIR]  public
+    [FILE] index.html (292 B)
+    [FILE] robots.txt (67 B)
+    [FILE] sitemap.xml (737 B)
+  [DIR]  src
+    [FILE] App.jsx (6992 B)
+    [DIR]  assets
+    [DIR]  components
+    [DIR]  context
+    [FILE] main.jsx (901 B)
+    [DIR]  pages
+    [DIR]  services
+    [DIR]  utils
+  [FILE] tailwind.config.js (1379 B)
+  [FILE] vercel.json (96 B)
+  [FILE] vite.config.js (403 B)
+[FILE] GOOGLE_SIGNIN_REPORT.md (10258 B)
+[FILE] HOW_TO_RUN_LOCAL_TESTS.md (3274 B)
+[FILE] MAINTENANCE_GUIDE.md (1238 B)
+[FILE] package-lock.json (12591 B)
+[FILE] package.json (1058 B)
+[FILE] playwright.config.js (850 B)
+[FILE] PRD_V2_IMPLEMENTATION_TRACKER.md (2286 B)
+[FILE] README.md (1926 B)
+[DIR]  test-artifacts
+  [DIR]  header
+    [FILE] header-after-1906px.png (14152 B)
+    [FILE] header-after-390px.png (5275 B)
+    [FILE] header-before.jpg (64102 B)
+[FILE] test-header.js (2213 B)
+[DIR]  test-results
+  [FILE] .last-run.json (45 B)
+[FILE] TESTING_CHECKLIST.md (4252 B)
+[FILE] TEST_REPORT.md (15993 B)
+[FILE] USER_GUIDE.md (1212 B)
