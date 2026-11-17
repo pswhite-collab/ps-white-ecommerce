@@ -142,7 +142,7 @@ export default function ManageOrders() {
   return (
     <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
       <Sidebar />
-      <section className="rounded-card border border-taupe/30 bg-milk p-6 shadow-soft">
+      <section className="min-w-0 rounded-card border border-taupe/30 bg-milk p-6 shadow-soft">
         <h1 className="font-display text-4xl text-mocha">Manage Orders</h1>
 
         <div className="mt-4 grid gap-3 md:grid-cols-4">

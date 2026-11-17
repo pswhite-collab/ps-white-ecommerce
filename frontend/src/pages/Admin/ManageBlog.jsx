@@ -151,7 +151,7 @@ export default function ManageBlog() {
   return (
     <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
       <Sidebar />
-      <section className="space-y-4 rounded-card border border-taupe/30 bg-milk p-6 shadow-soft">
+      <section className="min-w-0 space-y-4 rounded-card border border-taupe/30 bg-milk p-6 shadow-soft">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="font-display text-4xl text-mocha">Manage Blog</h1>

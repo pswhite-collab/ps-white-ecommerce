@@ -45,12 +45,12 @@ export const uploadEbook = createUploader({
 }).single('file');
 
 export const uploadAudio = createUploader({
-  maxSize: 500 * 1024 * 1024,
+  maxSize: 100 * 1024 * 1024,
   allowedMimeTypes: AUDIO_MIME_TYPES,
 }).single('file');
 
 const upload = createUploader({
-  maxSize: 500 * 1024 * 1024,
+  maxSize: 100 * 1024 * 1024,
   allowedMimeTypes: [...IMAGE_MIME_TYPES, ...EBOOK_MIME_TYPES, ...AUDIO_MIME_TYPES],
 });
 

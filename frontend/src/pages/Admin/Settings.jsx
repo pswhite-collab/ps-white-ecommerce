@@ -107,7 +107,7 @@ export default function Settings() {
     return (
       <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
         <Sidebar />
-        <section className="rounded-card border border-taupe/30 bg-milk p-6 shadow-soft">
+        <section className="min-w-0 rounded-card border border-taupe/30 bg-milk p-6 shadow-soft">
           <div className="py-8 text-center text-charcoal/70">Loading settings...</div>
         </section>
       </div>
@@ -117,7 +117,7 @@ export default function Settings() {
   return (
     <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
       <Sidebar />
-      <section className="space-y-4 rounded-card border border-taupe/30 bg-milk p-6 shadow-soft">
+      <section className="min-w-0 space-y-4 rounded-card border border-taupe/30 bg-milk p-6 shadow-soft">
         <header>
           <h1 className="font-display text-4xl text-mocha">Settings</h1>
           <p className="mt-1 text-sm text-charcoal/70">

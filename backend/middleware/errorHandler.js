@@ -1,7 +1,10 @@
 const errorHandler = (err, req, res, _next) => {
   const isMulterFileSizeError = err?.code === 'LIMIT_FILE_SIZE';
   const isCastError = err?.name === 'CastError';
-  const statusCode = err.statusCode || (isMulterFileSizeError ? 413 : isCastError ? 404 : 500);
+  const isCorsError = err?.message === 'Origin not allowed by CORS';
+  const statusCode =
+    err.statusCode ||
+    (isMulterFileSizeError ? 413 : isCastError ? 404 : isCorsError ? 403 : 500);
   const oauthRaw = err?.oauthError?.data;
   let oauthDetails = null;
 

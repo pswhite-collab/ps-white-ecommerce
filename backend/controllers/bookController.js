@@ -14,13 +14,13 @@ const buildFilters = (query) => {
     filters.featured = true;
   }
 
-  if (query.genre) {
+  if (query.genre && typeof query.genre === 'string') {
     filters.genres = query.genre;
   }
 
   const conditions = [];
 
-  if (query.search) {
+  if (query.search && typeof query.search === 'string') {
     const escaped = escapeRegex(query.search.trim());
     if (escaped) {
       const regex = new RegExp(escaped, 'i');

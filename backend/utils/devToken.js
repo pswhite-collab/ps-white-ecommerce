@@ -4,6 +4,11 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
 export const getDevToken = async (emailInput) => {
+  if (process.env.NODE_ENV === 'production') {
+    console.error('REFUSING DEV TOKEN: Dev token helper is strictly disabled in production mode!');
+    process.exit(1);
+  }
+
   const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/pswhite_local';
   const connection = await mongoose.connect(mongoUri);
   const dbName = connection.connection.name;

@@ -26,7 +26,7 @@ export default function AdminDashboard() {
   return (
     <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
       <Sidebar />
-      <section className="space-y-5">
+      <section className="min-w-0 space-y-5">
         <header className="rounded-card border border-taupe/30 bg-milk p-6 shadow-soft">
           <h1 className="font-display text-4xl text-mocha">Admin Dashboard</h1>
           <p className="mt-2 text-charcoal/70">Track store health, orders, and reading engagement.</p>

@@ -12,6 +12,7 @@ export default function BookFilters({ filters, onApply, onClear }) {
     <div className="rounded-card border border-taupe/30 bg-oat/60 p-4 shadow-soft">
       <div className="grid gap-3 md:grid-cols-4">
         <select
+          aria-label="Filter by format"
           value={local.format || ''}
           onChange={(event) => onChange('format', event.target.value)}
           className="rounded-card border border-taupe/50 bg-milk px-3 py-2 text-sm"
@@ -23,6 +24,7 @@ export default function BookFilters({ filters, onApply, onClear }) {
         </select>
 
         <input
+          aria-label="Filter by genre"
           value={local.genre || ''}
           onChange={(event) => onChange('genre', event.target.value)}
           placeholder="Genre"
@@ -30,6 +32,7 @@ export default function BookFilters({ filters, onApply, onClear }) {
         />
 
         <select
+          aria-label="Sort books by"
           value={local.sort || ''}
           onChange={(event) => onChange('sort', event.target.value)}
           className="rounded-card border border-taupe/50 bg-milk px-3 py-2 text-sm"
@@ -43,6 +46,7 @@ export default function BookFilters({ filters, onApply, onClear }) {
 
         <input
           type="range"
+          aria-label="Filter by maximum price"
           min="0"
           max="5000"
           value={local.maxPrice || 5000}

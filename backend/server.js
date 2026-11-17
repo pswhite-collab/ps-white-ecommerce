@@ -162,7 +162,16 @@ app.use('/api', (req, res) => {
 });
 
 if (isProduction) {
-  app.use(express.static(frontendDistPath));
+  app.use(
+    express.static(frontendDistPath, {
+      maxAge: '1d',
+      setHeaders: (res, filePath) => {
+        if (filePath.includes(path.sep + 'assets' + path.sep) || filePath.includes('/assets/')) {
+          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        }
+      },
+    })
+  );
   app.get('*', (_req, res) => {
     res.sendFile(path.join(frontendDistPath, 'index.html'));
   });

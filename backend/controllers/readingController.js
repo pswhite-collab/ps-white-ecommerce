@@ -526,6 +526,9 @@ export const downloadBookFile = async (req, res, next) => {
 };
 
 export const getSampleFile = async (req, res, next) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(403).json({ success: false, error: 'Sample endpoints are disabled in production' });
+  }
   try {
     const { format } = req.params;
     const uploadsDir = path.resolve(__dirname, '../uploads');

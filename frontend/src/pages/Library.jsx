@@ -83,6 +83,11 @@ export default function Library() {
 
   return (
     <section className="space-y-6">
+      <header className="rounded-card border border-taupe/30 bg-milk p-6 shadow-soft">
+        <h1 className="font-display text-4xl text-mocha">My Library</h1>
+        <p className="mt-2 text-charcoal/70">Your collection of digital books and reading progress.</p>
+      </header>
+
       <ReadingStats stats={statsPayload} />
 
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-taupe/30 bg-milk p-4 shadow-soft">

@@ -9,8 +9,8 @@ This inventory documents every client route, navigation link, access level, comp
 | `/` | Public | `Home.jsx` | `GET /api/books`, `GET /api/quotes/daily`, `POST /api/newsletter/subscribe` | Storefront landing page, hero, featured titles, daily quote banner, author intro, newsletter signup. |
 | `/books` | Public | `Books.jsx` | `GET /api/books?format=&sort=&search=&page=&limit=` | Filterable, searchable book catalog with format selection, sorting, and pagination. |
 | `/books/:id` | Public | `BookDetail.jsx` | `GET /api/books/:id`, `GET /api/reviews/book/:id`, `POST /api/reviews` | Single book presentation, format toggle (eBook, Paperback, Hardcover), sample reader modal, reviews, add to cart. |
-| `/blog` | Public | `Blog.jsx` | `GET /api/blog` | Editorial articles, literary essays, announcements. |
-| `/blog/:slug` | Public | `BlogPost.jsx` | `GET /api/blog/:slug` | Single blog article view with full prose body and publication date. |
+| `/blog` | Public | `Blog.jsx` | `GET /api/blog/posts` | Editorial articles, literary essays, announcements. |
+| `/blog/:slug` | Public | `BlogPost.jsx` | `GET /api/blog/posts/:slug` | Single blog article view with full prose body and publication date. |
 | `/login` | Public (Guest) | `Login.jsx` | `POST /api/auth/login`, `GET /api/auth/google` | Customer account authentication with email/password and Google OAuth. |
 | `/register` | Public (Guest) | `Register.jsx` | `POST /api/auth/register`, `GET /api/settings` | Customer self-registration (subject to `allowRegistration` toggle). |
 | `/auth/google/success` | Public | `GoogleAuthSuccess.jsx` | Query parameter `?token=...` | Post-OAuth redirect landing component that extracts JWT and updates AuthContext. |

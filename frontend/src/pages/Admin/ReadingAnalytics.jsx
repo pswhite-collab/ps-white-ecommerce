@@ -39,7 +39,7 @@ export default function ReadingAnalytics() {
   return (
     <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
       <Sidebar />
-      <section className="space-y-4 rounded-card border border-taupe/30 bg-milk p-6 shadow-soft">
+      <section className="min-w-0 space-y-4 rounded-card border border-taupe/30 bg-milk p-6 shadow-soft">
         <h1 className="font-display text-4xl text-mocha">Reading Analytics</h1>
 
         {error ? <p className="text-sm text-error">{error}</p> : null}

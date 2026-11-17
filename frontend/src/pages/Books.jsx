@@ -64,6 +64,7 @@ export default function Books() {
         <p className="mt-2 text-charcoal/70">Discover eBooks, physical editions, and audiobooks.</p>
 
         <input
+          aria-label="Search books by title, author, or keyword"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Search by title, author, or keyword"
